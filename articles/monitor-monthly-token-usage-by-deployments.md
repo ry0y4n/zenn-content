@@ -43,7 +43,7 @@ Azure OpenAI リソースのトークン使用量を監視する場合、アラ�
 
 # 解決策
 
-このような（アラート ルールでは目的を達成できない）場合、**Azure Functions** または Logic Apps などを使って自前で監視を組み立ってる方法が考えられます。
+このような（アラート ルールでは目的を達成できない）場合、**Azure Functions** または Logic Apps などを使って自前で監視を組み立てる方法が考えられます。
 
 Logic Apps は Low-Code で便利なのですが、せっかくなので今回は Azure Functions (TypeScript) で監視を実装してみます。
 
