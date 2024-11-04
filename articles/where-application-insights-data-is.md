@@ -28,12 +28,14 @@ https://learn.microsoft.com/ja-jp/azure/azure-monitor/app/app-insights-overview#
 
 # 実際のデータ送信先
 
-テレメトリ（データ）の送信先・保存先は Application Insights ではなく、 Log Analytics ワークスペースです。  
+テレメトリ（データ）の送信先・保存先は Application Insights ではなく、 **Log Analytics ワークスペース**です。  
  Application Insights はテレメトリを収集・送信するための役割を担い、データの保存自体は Log Analytics ワークスペースが担当しています。
 
-そのため、 Application Insights 自体にデータを保存する機能はありません。
+そのため、 Application Insights 自体に**データを保存する機能はありません**。
 
 # 誤解の原因について
+
+私は以下の二点を原因として捉えています。
 
 ## 1. クラシック版 Application Insights とワークスペース版 Application Insights の混同
 
@@ -56,7 +58,7 @@ https://learn.microsoft.com/ja-jp/azure/azure-monitor/app/app-insights-overview#
 - Azure Portal の Application Insights リソース ページからも「ログ」ブレードを選択し、同じく Kusto クエリでデータを確認できます。
 
   ```
-  requests // アプリへのリクエスト データ
+  requests // アプリへのリクエスト データ（あれ、テーブル名が違う？）
   ```
 
 - しかし、上記 2 つのブレードで同一のデータを参照する際、使用するテーブル名が異なります。
