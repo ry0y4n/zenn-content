@@ -1,9 +1,9 @@
 ---
-title: "【Azure OpenAI × Function Calling】"
+title: "AOAI GPT-4o Realtime API で Function Calling を試してみる"
 emoji: "📑"
 type: "tech" # tech: 技術記事 / idea: アイデア
-topics: [azure, microsoft, azureopenai, javascript]
-published: false
+topics: [azure, openai, azureopenai, functioncalling, typescript]
+published: true
 ---
 
 # 概要
@@ -26,7 +26,7 @@ https://github.com/Azure-Samples/aoai-realtime-audio-sdk/tree/main
 
 ### Before (OpenAI API)
 
-```JavaScript
+```TypeScript
 const url = "wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-10-01";
 const ws = new WebSocket(url, {
     headers: {
@@ -38,7 +38,7 @@ const ws = new WebSocket(url, {
 
 ### After (Azure OpenAI GPT-4o Realtime API SDK)
 
-```JavaScript
+```TypeScript
 realtimeStreaming = new LowLevelRTClient(
   new URL(endpoint),
   { key: apiKey },
