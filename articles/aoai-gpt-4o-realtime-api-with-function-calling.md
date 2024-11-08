@@ -133,9 +133,25 @@ case "response.output_item.done":
 
 ![alt text](/images/aoai-gpt-4o-realtime-api-with-function-calling/get_my_name_result.png)
 
+# 現時点で不明瞭な点
+
+## Function を判定できるコマンドが 2 種類ある
+
+Fucntion とそれに渡す引数を含むコマンドとして、`response.function_call_arguments.done` と `response.output_item.done` がある。どちらを採用すればいいのか現時点では不明です。
+
+## Function の実行結果を送るタイミング
+
+上記の通り、2 つのどちらかのコマンドを受け取ったタイミングで「関数実行 → 返答生成依頼」を行えるが、SDK の README に以下の記述があります。
+
+> Sending the response.create command before the paired response.done command for the prior response arrives (e.g. immediately after an response.function_call_arguments.done or response.output_item.done) may produce unexpected behavior and race conditions.
+
+つまり、厳密には「関数実行 → `response.done` コマンド受信確認 → 返答生成依頼」のステップを踏む必要があると私は解釈しました。現状、特に気にせず関数の実行結果を取得次第、送っているのですが動作しているのですが、本番環境として運用する際は気にした方が良いかもしれません。
+
 # まとめ
 
-今回は引数の無い関数を呼び出す形で Function Calling を試してみましたが、実際には引数を取る関数を呼び出すことが多いと思います。引数の取り方や Function の実装方法については、SDK のドキュメントを参照してください。
+今回は引数の無い関数を呼び出す形で Function Calling を試してみました。
+
+実際には引数を取る関数を呼び出すことが多いと思います。引数の取り方や Function の実装方法については、SDK のドキュメントを参照してください。
 
 :::details 参考: SDK の tools 定義例
 
@@ -177,7 +193,7 @@ https://github.com/Azure-Samples/aoai-realtime-audio-sdk?tab=readme-ov-file#api-
 
 # 参考資料
 
--   [Introducing the Realtime API](https://openai.com/index/introducing-the-realtime-api/)
--   [Realtime API Docs](https://platform.openai.com/docs/guides/realtime)
--   [音声とオーディオ用の GPT-4o Realtime API (プレビュー)](https://learn.microsoft.com/ja-jp/azure/ai-services/openai/realtime-audio-quickstart?pivots=programming-language-javascript)
--   [Azure OpenAI GPT-4o Audio and /realtime: Public Preview Documentation](https://github.com/Azure-Samples/aoai-realtime-audio-sdk/tree/main)
+- [Introducing the Realtime API](https://openai.com/index/introducing-the-realtime-api/)
+- [Realtime API Docs](https://platform.openai.com/docs/guides/realtime)
+- [音声とオーディオ用の GPT-4o Realtime API (プレビュー)](https://learn.microsoft.com/ja-jp/azure/ai-services/openai/realtime-audio-quickstart?pivots=programming-language-javascript)
+- [Azure OpenAI GPT-4o Audio and /realtime: Public Preview Documentation](https://github.com/Azure-Samples/aoai-realtime-audio-sdk/tree/main)
