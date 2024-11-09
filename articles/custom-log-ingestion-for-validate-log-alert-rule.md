@@ -19,7 +19,19 @@ published: false
 -   データ収集ルール
 -   データ収集エンドポイント
 
-# 1. Logic Apps 作成
+# 0. Log Analytics ワークスペース作成
+
+もし無ければ、ログを収集したい Log Analytics ワークスペースを作成しておく
+
+# 1. Logic Apps
+
+## リソース作成
+
+特に必要な設定はありません。空の Logic Apps を作成してください（今回、ホスティング プランは「従量課金」で作成しました）。
+
+![alt text](/images/custom-log-ingestion-for-validate-log-alert-rule/logic-apps-overview.png)
+
+## アプリ設定
 
 # 2. データ収集エンドポイント作成
 
