@@ -4,6 +4,7 @@ emoji: "📑"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [azure, openai, azureopenai, functioncalling, typescript]
 published: true
+publication_name: "microsoft"
 ---
 
 # 概要
@@ -193,7 +194,7 @@ https://github.com/Azure-Samples/aoai-realtime-audio-sdk?tab=readme-ov-file#api-
 
 # 参考資料
 
-- [Introducing the Realtime API](https://openai.com/index/introducing-the-realtime-api/)
-- [Realtime API Docs](https://platform.openai.com/docs/guides/realtime)
-- [音声とオーディオ用の GPT-4o Realtime API (プレビュー)](https://learn.microsoft.com/ja-jp/azure/ai-services/openai/realtime-audio-quickstart?pivots=programming-language-javascript)
-- [Azure OpenAI GPT-4o Audio and /realtime: Public Preview Documentation](https://github.com/Azure-Samples/aoai-realtime-audio-sdk/tree/main)
+-   [Introducing the Realtime API](https://openai.com/index/introducing-the-realtime-api/)
+-   [Realtime API Docs](https://platform.openai.com/docs/guides/realtime)
+-   [音声とオーディオ用の GPT-4o Realtime API (プレビュー)](https://learn.microsoft.com/ja-jp/azure/ai-services/openai/realtime-audio-quickstart?pivots=programming-language-javascript)
+-   [Azure OpenAI GPT-4o Audio and /realtime: Public Preview Documentation](https://github.com/Azure-Samples/aoai-realtime-audio-sdk/tree/main)
