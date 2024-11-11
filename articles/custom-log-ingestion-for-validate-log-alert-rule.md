@@ -19,6 +19,7 @@ publication_name: "microsoft"
 -   Log Analytics ワークスペース
 -   データ収集ルール
 -   データ収集エンドポイント
+-   アラート ルール
 
 # 0. Log Analytics ワークスペース作成
 
