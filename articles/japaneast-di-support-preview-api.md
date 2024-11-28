@@ -1,8 +1,8 @@
 ---
-title: ""
+title: "【Document Intelligence】東日本リージョンでは Office 系のファイルをサポートしていないって本当？"
 emoji: "🎃"
 type: "tech" # tech: 技術記事 / idea: アイデア
-topics: []
+topics: [azure]
 published: false
 ---
 
