@@ -10,8 +10,8 @@ published: true
 
 この記事は以下のコンテンツを含んでいます。
 
--   Document Intelligence の作成とプライベート エンドポイントと組み合わせた閉域化の手順
--   閉域化された Document Intelligence を Document Intelligence Studio から利用するための注意点
+- Document Intelligence の作成とプライベート エンドポイントと組み合わせた閉域化の手順
+- 閉域化された Document Intelligence を Document Intelligence Studio から利用するための注意点
 
 # Document Intelligence の作成
 
@@ -27,8 +27,8 @@ Azure Portal で Document Intelligence を作成していきます。
 
 そして、ファイアウォールの設定で、以下の 2 つの IP アドレスを許可してください。
 
--   Document Intelligence Studio の IP アドレス
--   お使いのコンピュータの IP アドレス
+- Document Intelligence Studio の IP アドレス
+- お使いのコンピュータの IP アドレス
 
 :::message
 お使いのコンピュータの IP アドレスを調べる方法は以下の通りです。
@@ -58,9 +58,9 @@ Invoke-RestMethod -Uri "https://ifconfig.me"
 
 現時点での状況は以下の通りです。
 
--   Document Intelligence は作成されました。
--   Document Intelligence に対して、2 つの IP アドレスを許可するファイアウォールの設定が完了しました。
--   Document Intelligence へのアクセスはパブリック IP アドレスを経由して通信されます。
+- Document Intelligence は作成されました。
+- Document Intelligence に対して、2 つの IP アドレスを許可するファイアウォールの設定が完了しました。
+- Document Intelligence へのアクセスはパブリック IP アドレスを経由して通信されます。
 
 これをプライベート エンドポイントを使って閉域化（プライベート IP アドレス経由で通信に）します。
 
@@ -90,14 +90,14 @@ Document Intelligence のプライベート エンドポイントを設定して
 
 ### 結果
 
--   Document Intelligence へのアクセスはプライベート エンドポイント経由
--   例外として、クライアント PC 上での SDK を使ったアクセスや Document Intelligence Studio からのアクセスはパブリック IP アドレスを経由
+- Document Intelligence へのアクセスはプライベート エンドポイント経由
+- 例外として、クライアント PC 上での SDK を使ったアクセスや Document Intelligence Studio からのアクセスはパブリック IP アドレスを経由
 
 # Document Intelligence Studio での動作確認
 
 最後に、Document Intelligence Studio から Document Intelligence にアクセスできることを確認します。
 
-![alt text](/images//private-document-intelligence-tips/check-studio-work.png)
+![alt text](/images//private-document-intelligence-tips/check-studio-does-work.png)
 
 # まとめ
 
@@ -119,5 +119,5 @@ Document Intelligence のプライベート エンドポイントを設定して
 
 # 参考
 
--   [マネージド ID と仮想ネットワークを使用してセキュリティで保護されたアクセスを構成する](https://learn.microsoft.com/ja-jp/azure/ai-services/document-intelligence/authentication/managed-identities-secured-access?view=doc-intel-4.0.0)
--   [レイアウト モデルでサポートされているファイル形式](https://learn.microsoft.com/ja-jp/azure/ai-services/document-intelligence/prebuilt/layout?view=doc-intel-4.0.0&tabs=sample-code#input-requirements-v4)
+- [マネージド ID と仮想ネットワークを使用してセキュリティで保護されたアクセスを構成する](https://learn.microsoft.com/ja-jp/azure/ai-services/document-intelligence/authentication/managed-identities-secured-access?view=doc-intel-4.0.0)
+- [レイアウト モデルでサポートされているファイル形式](https://learn.microsoft.com/ja-jp/azure/ai-services/document-intelligence/prebuilt/layout?view=doc-intel-4.0.0&tabs=sample-code#input-requirements-v4)
