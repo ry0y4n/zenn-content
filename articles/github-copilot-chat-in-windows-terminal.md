@@ -3,7 +3,7 @@ title: "GitHub Copilot Chat in Windows Terminal を試してみよう"
 emoji: "🍣"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [githubcopilot, windowsterminal, aoai, openai]
-published: false
+published: true
 publication_name: "microsoft"
 ---
 
