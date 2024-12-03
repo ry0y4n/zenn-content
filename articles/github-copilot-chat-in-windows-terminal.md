@@ -4,6 +4,7 @@ emoji: "🍣"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: []
 published: false
+publication_name: "microsoft"
 ---
 
 # GitHub Copilot Chat in Windows Terminal とは
@@ -12,9 +13,9 @@ published: false
 
 ## 必要なもの
 
-- GitHub Copilot へのアクセス権
-- カナリー版の Windows Terminal
-  - [こちら](https://github.com/microsoft/terminal?tab=readme-ov-file#installing-windows-terminal-canary) からインストールしてください。
+-   GitHub Copilot へのアクセス権
+-   カナリー版の Windows Terminal
+    -   [こちら](https://github.com/microsoft/terminal?tab=readme-ov-file#installing-windows-terminal-canary) からインストールしてください。
 
 :::message
 組織で GitHub Copilot へのアクセスを管理している場合、管理者が「Copilot in the CLI」設定を無効にしている場合、Windows Terminal で Copilot を使用することができないの要注意です。
@@ -24,4 +25,4 @@ published: false
 
 # 参考
 
-- [Windows ターミナルで GitHub Copilot に質問をする](https://docs.github.com/ja/copilot/using-github-copilot/asking-github-copilot-questions-in-windows-terminal)
+-   [Windows ターミナルで GitHub Copilot に質問をする](https://docs.github.com/ja/copilot/using-github-copilot/asking-github-copilot-questions-in-windows-terminal)
