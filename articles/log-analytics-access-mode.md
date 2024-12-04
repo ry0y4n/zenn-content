@@ -7,6 +7,8 @@ published: true
 publication_name: "microsoft"
 ---
 
+モモスケです。[Microsoft Azure Tech Advent Calendar 2024](https://qiita.com/advent-calendar/2024/microsoft-azure-tech) の 4 日目の記事となります。
+
 # 概要
 
 この記事は以下の内容を含んでいます。
