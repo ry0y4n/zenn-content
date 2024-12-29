@@ -21,6 +21,10 @@ Envlate は Go 言語で開発された **クロスプラットフォームな C
 
 https://github.com/ry0y4n/envlate
 
+### デモ
+
+![](/images/generate-env-template-cli/envlate-demo.gif)
+
 ---
 
 ## 背景
