@@ -4,6 +4,7 @@ emoji: "⛳"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["go", "cli", "env"]
 published: true
+publication_name: "microsoft"
 ---
 
 こんにちは、モモスケです。

@@ -4,6 +4,7 @@ emoji: "🔖"
 type: "tech"
 topics: ["go", "cli", "env"]
 published: true
+publication_name: "microsoft"
 ---
 
 こんにちは、モモスケです。  
@@ -13,9 +14,9 @@ published: true
 
 Envlate は Go 言語で開発された **クロスプラットフォームな CLI ツール** です。Go でビルドしているため、**Windows / macOS / Linux** を含むさまざまな環境で動作します。また、Envlate は以下のような特徴を持ちます。
 
-- `.env` や `.env.local` など、任意の環境変数ファイルからテンプレートファイル（`.env.template` や `.env.local.template`）を生成
-- インストールスクリプトを一度実行するだけで使えるため、依存ライブラリ不要
-- ファイル パスを指定して生成した場合は、元のファイルと同じディレクトリにテンプレートファイルを作成
+-   `.env` や `.env.local` など、任意の環境変数ファイルからテンプレートファイル（`.env.template` や `.env.local.template`）を生成
+-   インストールスクリプトを一度実行するだけで使えるため、依存ライブラリ不要
+-   ファイル パスを指定して生成した場合は、元のファイルと同じディレクトリにテンプレートファイルを作成
 
 リポジトリはこちらに公開しています。
 
@@ -59,8 +60,8 @@ SAMPLE_DB_PASS=
 
 .env ファイルと .env.template 間の生成や同期をサポートするツールとしては、下記のようなものが既に存在しています。
 
-- [gen-env-template](https://github.com/mrsauravsahu/gen-env-template)
-- [env-template](https://github.com/hitgo00/env-template)
+-   [gen-env-template](https://github.com/mrsauravsahu/gen-env-template)
+-   [env-template](https://github.com/hitgo00/env-template)
 
 どちらも npm パッケージとして提供されているため、Node.js がインストールされている環境なら手軽に利用できます。一方で、Node.js を入れていない環境（Docker イメージ内や CI/CD の実行環境など）では手間がかかる場合もあるかと思います。
 
@@ -70,12 +71,12 @@ SAMPLE_DB_PASS=
 
 ## Envlate の主な機能
 
-- **テンプレート生成**  
-  既存の `.env` などのファイルを元に、テキストの値部分だけ空やコメントなどに置き換えたテンプレートファイル (`.env.template`) を生成します。
-- **シンプルなコマンド**  
-  オプションなしで `envlate` と入力するだけで、カレントディレクトリの `.env` を見つけてそのテンプレートを生成してくれます。
-- **柔軟なファイル指定**  
-  デフォルトではカレントディレクトリの `.env` を探索しますが、`--file` オプションで任意のパスを指定することも可能です。指定ファイルと同じディレクトリにテンプレートファイルを作成します。
+-   **テンプレート生成**  
+    既存の `.env` などのファイルを元に、テキストの値部分だけ空やコメントなどに置き換えたテンプレートファイル (`.env.template`) を生成します。
+-   **シンプルなコマンド**  
+    オプションなしで `envlate` と入力するだけで、カレントディレクトリの `.env` を見つけてそのテンプレートを生成してくれます。
+-   **柔軟なファイル指定**  
+    デフォルトではカレントディレクトリの `.env` を探索しますが、`--file` オプションで任意のパスを指定することも可能です。指定ファイルと同じディレクトリにテンプレートファイルを作成します。
 
 ---
 
@@ -136,16 +137,16 @@ Envlate を使えば、環境変数のテンプレートファイルを手軽に
 
 # 参考資料
 
-- [Go で CLI コマンドを自作して公開するまでの道のり](https://zenn.dev/tttol/articles/c7dfc74d27e45d)
+-   [Go で CLI コマンドを自作して公開するまでの道のり](https://zenn.dev/tttol/articles/c7dfc74d27e45d)
 
-  - インストール スクリプト作成で、記事内でご共有のコードをほとんど流用させていただきました！
+    -   インストール スクリプト作成で、記事内でご共有のコードをほとんど流用させていただきました！
 
-- [GoReleaser で Go 製 CLI のリリースを自動化＆ Homebrew でインストールできるようにする](https://zenn.dev/kou_pg_0131/articles/goreleaser-usage)
+-   [GoReleaser で Go 製 CLI のリリースを自動化＆ Homebrew でインストールできるようにする](https://zenn.dev/kou_pg_0131/articles/goreleaser-usage)
 
-  - GoReleaser 導入から GitHub Actions での自動リリースまで参考にしました！
+    -   GoReleaser 導入から GitHub Actions での自動リリースまで参考にしました！
 
-- [Go で Cobra を使って CLI を作成してみた](https://qiita.com/zumax/items/7c45a01abb31f0494823)
-  - Cobra を導入する際に参考にしました！
+-   [Go で Cobra を使って CLI を作成してみた](https://qiita.com/zumax/items/7c45a01abb31f0494823)
+    -   Cobra を導入する際に参考にしました！
 
 ---
 
