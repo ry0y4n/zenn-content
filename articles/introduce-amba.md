@@ -1,5 +1,5 @@
 ---
-title: "【Azure のアラート設計のベースライン】Azure Monitor Baseline Alerts の紹介"
+title: "【Azure のアラート設計ベースライン】Azure Monitor Baseline Alerts の紹介"
 emoji: "💨"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [azure, microsoft, azuremonitor, monitor]
@@ -112,7 +112,7 @@ InsightsMetrics
 
 # Infrastructure as Code (IaC) テンプレート
 
-AMBA では、上記のアラートルールを簡単にデプロイできるよう、さまざまな IaC テンプレートが提供されています。主な提供方法は以下の通りです。
+AMBA では、上記のアラートルール設定とともに、それを簡単にデプロイできるよう、さまざまな **IaC テンプレート**が提供されています。主な提供テンプレートは以下の通りです。
 
 -   Azure ポータルでのカスタム デプロイ ボタン
     -   アラートルール単体のデプロイテンプレート
