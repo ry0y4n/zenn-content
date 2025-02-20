@@ -4,11 +4,18 @@ emoji: "👌"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: []
 published: false
+publication_name: "microsoft"
 ---
 
-GitHub Copilot は、日々のコーディング作業を効率化する強力なツールです。もともと、**Custom Instructions** を用いて、プロジェクト固有のライブラリやコーディングスタイルに合わせたコード生成を実現してきました。しかし、従来の方法では単一の Markdown ファイルしかインプットできないため、複数の指示を場面ごとに分割して管理することは難しいという課題がありました。
+GitHub Copilot は、日々のコーディング作業を効率化する強力なツールです。もともと、**Custom Instructions** を用いて、プロジェクト固有のライブラリやコーディングスタイルに合わせたコード生成を実現してきました。
 
-そこで登場したのが【Reusable Prompt Files】です。これにより、役割ごとに異なる指示ファイルを用意し、必要なものだけを取り出してコンテキストとして反映させることが可能になりました。
+:::message
+この記事では、カスタム インストラクション自体の詳説は省略します。カスタム インストラクションに入門するには土田さんの「**[GitHub Copilot にカスタムインストラクションで最新技術や独自ルールを教え込む](https://zenn.dev/microsoft/articles/github-copilot-custom-instructions)**」をご参照ください。
+:::
+
+しかし、従来の方法では **単一の Markdown ファイルしかインプットできない** ため、複数の指示を場面ごとに分割して管理することは難しいという課題がありました。
+
+そこで登場したのが「**Reusable Prompt Files**」です。これにより、役割ごとに異なる指示ファイルを用意し、必要なものだけを取り出してコンテキストとして反映させることが可能になりました。
 
 # Custom Instructions の基本
 
@@ -29,14 +36,13 @@ GitHub Copilot は、日々のコーディング作業を効率化する強力�
 ]
 ```
 
-上記の例では、直接テキストを指定する方法と、Markdown ファイルからインポートする方法の両方が利用されています。さらに、`.github/copilot-instructions.md` に記述することで、VS Code と Visual Studio の両方で共通の指示を利用できる点も魅力です。
+上記の例では、直接テキストを指定する方法と、Markdown ファイルからインポートする方法の両方が利用されています。さらに、`.github/copilot-instructions.md` に記述することで、カスタム インストラクションを利用できる点も魅力です。
 
 # Reusable Prompt Files の魅力と概要
 
-Reusable Prompt Files では、従来のように単一ファイルに全ての指示をまとめる必要がなく、複数の Markdown ファイルを用途に応じて分割できます。  
-具体的には、以下のような手順で利用します。
+Reusable Prompt Files では、従来のように単一ファイルに全ての指示をまとめる必要がなく、複数の Markdown ファイルを用途に応じて分割できます。 具体的には、以下のような手順で利用します。
 
-1. **任意の場所にコード規則（Markdown ファイル）を作成**  
+1. **任意の場所にコード規則やルール ファイル（Markdown）を作成**  
    例：`code-style.md` や `code-style2.md` といったファイルに、プロジェクト固有のコーディングルールを記述します。
 
 2. **.github/prompts/.prompt.md ファイルを作成**  
@@ -104,4 +110,6 @@ GitHub Copilot の Reusable Prompt Files 機能は、従来のカスタムイン
 
 これにより、開発現場におけるコード生成のクオリティが向上し、プロジェクトごとのカスタマイズも容易になります。ぜひ、あなたのプロジェクトでもこの新機能を活用して、よりスマートな開発ライフを実現してみてください!
 
-詳しくは[公式ドキュメント](https://code.visualstudio.com/docs/copilot/copilot-customization#_reusable-prompt-files-experimental)も参照してください.
+# 参考所法
+
+-   [Reusable prompt files (experimental)](https://code.visualstudio.com/docs/copilot/copilot-customization#_reusable-prompt-files-experimental)
