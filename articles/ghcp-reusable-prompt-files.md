@@ -97,6 +97,14 @@ print("\033[31mThis is red color\033[0m")
     #file:../../code-style.md
     ```
 
+:::message
+実運用では、**`.prompt.md`** というファイル名ではなく、以下のスクリーンショットのように複数のファイルを用意するとより柔軟にプロンプトを分割管理できます。拡張子が **`.prompt.md`** になっていれば問題ないようです
+
+![alt text](/images/ghcp-reusable-prompt-files/advanced-usecase.png)
+
+（このアイデアは本記事コメント欄にて _SIkebe_ さんに教えていただきました）。
+:::
+
 ## 4. **VS Code の Chat, Edit, Inline Chat 欄からプロンプトを呼び出す**
 
 一つだけ Custom Instructions と違って手間があるのは、明示的に Prompt Files を使うことを下記の手順で指定する必要がある点です。
