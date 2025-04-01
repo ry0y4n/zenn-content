@@ -347,6 +347,8 @@ export function deactivate() {}
 
 :::details 今回使ったソースコード例
 
+[こちら](https://www.exploit-db.com/exploits/46386) のサイトを参考にしました。
+
 ```python
 from flask import Flask, request
 from jinja2 import Template
