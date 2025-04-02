@@ -378,8 +378,6 @@ if __name__ == "__main__":
 実装例は以下の通りです。
 
 ```typescript
-import fs from "fs";
-
 export function activate(context: vscode.ExtensionContext) {
     // アクティブなファイルを取得する関数
     const getCurrentSourceCode = () => {
