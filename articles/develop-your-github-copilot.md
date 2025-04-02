@@ -23,7 +23,7 @@ publication_name: "microsoft"
 
 今回の記事では、これらのコマンドを参考に『**ウェブ アプリのソース コードから脆弱性を発見する**』カスタム コマンド（**@security-checker**）の実装方法を紹介します。
 
-![](/images/develop-your-github-copilot/my-github-copilot-final-status.gif)
+![alt](/images/develop-your-github-copilot/my-github-copilot-final-status.gif)
 
 # 前提条件
 
