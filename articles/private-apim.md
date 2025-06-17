@@ -7,9 +7,11 @@ published: true
 publication_name: "microsoft"
 ---
 
-いきなりですが、2025 年 4 月 10 日、**API Management の Standard v2 プランにおいて、プライベート エンドポイントのパブリック プレビューが開始されました！** これによって、今までよりかなり安価に API Management を閉域化することができるようになりました！
+~~いきなりですが、2025 年 4 月 10 日、**API Management の Standard v2 プランにおいて、プライベート エンドポイントのパブリック プレビューが開始されました！** これによって、今までよりかなり安価に API Management を閉域化することができるようになりました！~~
 
-> 参考：[Announcing open public preview of inbound private endpoint for Standard v2 tier of API Management](https://techcommunity.microsoft.com/blog/integrationsonazureblog/announcing-open-public-preview-of-inbound-private-endpoint-for-standard-v2-tier-/4402521)
+> ~~参考：[Announcing open public preview of inbound private endpoint for Standard v2 tier of API Management](https://techcommunity.microsoft.com/blog/integrationsonazureblog/announcing-open-public-preview-of-inbound-private-endpoint-for-standard-v2-tier-/4402521)~~
+
+> 追記：2025 年 5 月 20 日、**API Management の Standard v2 プランにおいて、プライベート エンドポイントの「一般提供（GA）」が開始されました！**（参考：[GA: Inbound private endpoint for Standard v2 tier of Azure API Management](https://techcommunity.microsoft.com/blog/integrationsonazureblog/ga-inbound-private-endpoint-for-standard-v2-tier-of-azure-api-management/4415374)）
 
 プライベート エンドポイントと VNet 統合を組み合わせることで、API Management を送受信共に閉域化（プライベート IP アドレスのみでの通信）することができるようになりました。
 
@@ -38,9 +40,9 @@ publication_name: "microsoft"
 
 以下の構成で API Management を閉域化していきます。
 
--   API Management
--   Azure Functions（バックエンド API）
--   VPN Gateway（ローカル PC から閉域環境に入って API Management にアクセスするため）
+- API Management
+- Azure Functions（バックエンド API）
+- VPN Gateway（ローカル PC から閉域環境に入って API Management にアクセスするため）
 
 ![alt text](/images/private-apim/architecture.png)
 
@@ -62,8 +64,8 @@ publication_name: "microsoft"
 
 仮想ネットワーク内に以下の 2 つのサブネットを作成します。
 
--   `apim-subnet`：API Management の VNet 統合用サブネット
--   `pe-subnet`：プライベート エンドポイント用サブネット
+- `apim-subnet`：API Management の VNet 統合用サブネット
+- `pe-subnet`：プライベート エンドポイント用サブネット
 
 ![alt text](/images/private-apim/create-vnet-3.png)
 
@@ -137,8 +139,8 @@ Azure Functions リソースの「ネットワーク」ブレードから「プ�
 
 ここまでで以下が完了しました。
 
--   送受信が閉域化された API Management
--   受信が閉域化された Azure Functions
+- 送受信が閉域化された API Management
+- 受信が閉域化された Azure Functions
 
 # VPN Gateway の作成
 
@@ -152,8 +154,8 @@ VPN クライアント プロファイルを作成してダウンロードして
 
 「ポイント対サイトの構成」ブレードで以下の設定を行います。
 
--   トンネルの種類：OpenVPN (SSL)
--   認証の種類：Azure Active Directory (Entra ID)
+- トンネルの種類：OpenVPN (SSL)
+- 認証の種類：Azure Active Directory (Entra ID)
 
 Azure Active Directory (Entra ID) の情報は、[こちら](https://learn.microsoft.com/ja-jp/azure/vpn-gateway/point-to-site-entra-gateway#configure-vpn) のドキュメントを参考にテナント ID を使って設定してください。
 
@@ -283,7 +285,7 @@ API Management の Standard v2 プランにおいて、プライベート エン
 
 # 参考資料
 
--   [Quickstart: Create a new Azure API Management instance by using the Azure portal](https://learn.microsoft.com/ja-jp/azure/api-management/get-started-create-service-instance)
--   [送信接続のためにプライベート仮想ネットワークと Azure API Management インスタンスを統合する](https://learn.microsoft.com/ja-jp/azure/api-management/integrate-vnet-outbound)
--   [受信プライベート エンドポイントを使用して API Management に非公開で接続する](https://learn.microsoft.com/ja-jp/azure/api-management/private-endpoint?tabs=v2)
--   ["Minimum Viable Sample" 機能最小限な社内文書 RAG チャットボット(プライベートネットワーク縛り)](https://github.com/torumakabe/rag-chat-private-minimal)
+- [Quickstart: Create a new Azure API Management instance by using the Azure portal](https://learn.microsoft.com/ja-jp/azure/api-management/get-started-create-service-instance)
+- [送信接続のためにプライベート仮想ネットワークと Azure API Management インスタンスを統合する](https://learn.microsoft.com/ja-jp/azure/api-management/integrate-vnet-outbound)
+- [受信プライベート エンドポイントを使用して API Management に非公開で接続する](https://learn.microsoft.com/ja-jp/azure/api-management/private-endpoint?tabs=v2)
+- ["Minimum Viable Sample" 機能最小限な社内文書 RAG チャットボット(プライベートネットワーク縛り)](https://github.com/torumakabe/rag-chat-private-minimal)
