@@ -15,6 +15,8 @@ publication_name: "microsoft"
 
 今回紹介する認証方法を使うことで、APIM をバイパスしたバックエンド API への直接アクセスを防ぎ、APIM によるセキュリティとガバナンスの配下に置くことができます。
 
+![今回のアーキテクチャ図](/images/apim-backend-api-auth-using-managed-id/architecture.png)
+
 ## 【小話】MCP 文脈での APIM
 
 昨今、**MCP (Model Context Protocol)** が注目されていますが、リモート MCP サーバーを一元管理するための **AI ゲートウェイ** として APIM を利用することができます。
