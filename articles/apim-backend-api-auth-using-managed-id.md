@@ -4,6 +4,7 @@ emoji: "🔒"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["azure", "azureapimanagement", "api", "auth", "mcp"]
 published: true
+publication_name: "microsoft"
 ---
 
 # はじめに
