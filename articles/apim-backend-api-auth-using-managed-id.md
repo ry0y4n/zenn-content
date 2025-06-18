@@ -218,7 +218,7 @@ ID プロバイダーの一覧から「Microsoft」を選択します。そう�
 
 ![ポリシーの XML コード](/images/apim-backend-api-auth-using-managed-id/policy-xml-code.png)
 
-これにより、APIM は割り当てられた マネージド ID で Azure AD からアクセストークンを取得し、Authorization: Bearer <token> を付与してバックエンド API に転送します。
+これにより、APIM は割り当てられた マネージド ID で Azure AD からアクセストークンを取得し、`Authorization: Bearer <token>` を付与してバックエンド API に転送します。
 バックエンド側の Easy Auth は次の 2 段階でトークンを検証します。
 
 1. **認証**：署名・発行者 (iss)・有効期限 (exp)・aud などの検証に合格すること。
