@@ -2,8 +2,9 @@
 title: "Azure Login Action で OIDC 認証する最短手順（GitHub Actions）"
 emoji: "🌊"
 type: "tech" # tech: 技術記事 / idea: アイデア
-topics: ["azure", "github-actions", "oidc", "security", "entra"]
-published: false
+topics: ["azure", "githubactions", "github", "devops"]
+published: true
+pupublication_name: "microsoft"
 ---
 
 GitHub Actions の [Azure Login Action (azure/login)](https://github.com/marketplace/actions/azure-login) を、推奨の OpenID Connect（OIDC）で安全にサインインさせるための最短手順をまとめます。シークレットにパスワードを持たないため、セキュアで運用しやすいのが利点です。
