@@ -4,7 +4,7 @@ emoji: "🌊"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["azure", "githubactions", "github", "devops"]
 published: true
-pupublication_name: "microsoft"
+publication_name: "microsoft"
 ---
 
 GitHub Actions の [Azure Login Action (azure/login)](https://github.com/marketplace/actions/azure-login) を、推奨の OpenID Connect（OIDC）で安全にサインインさせるための最短手順をまとめます。シークレットにパスワードを持たないため、セキュアで運用しやすいのが利点です。
