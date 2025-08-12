@@ -150,3 +150,4 @@ https://github.com/marketplace/actions/azure-api-management-policy-update
 - Azure Login action: https://github.com/marketplace/actions/azure-login
 - OIDC と GitHub Actions の連携（フェデレーション資格情報）: https://learn.microsoft.com/entra/workload-id/workload-identity-federation-create-trust
 - Bicep 例（GitHub Actions での認証解説含む）: https://learn.microsoft.com/azure/azure-resource-manager/bicep/deploy-github-actions
+- GitHub Actions から Azure リソースを操作する: https://techblog.tg-inet.co.jp/entry/2025/07/29/172800
