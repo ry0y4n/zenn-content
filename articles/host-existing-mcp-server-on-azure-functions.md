@@ -19,6 +19,24 @@ Model Context Protocol（MCP）は、Anthropic が開発した AI エージェ�
 
 https://github.com/Azure-Samples/mcp-sdk-functions-hosting-python
 
+なお、この取り組みは Microsoft Tech Community の公式記事でも紹介されています：
+
+https://techcommunity.microsoft.com/blog/appsonazureblog/announcing-early-preview-byo-remote-mcp-server-on-azure-functions/4445317
+
+この記事では、早期プレビュー（Early Preview）の対応範囲として以下が明記されています。
+
+-   Python / Node / .NET の MCP SDK で構築されたサーバーをサポート
+-   Streamable HTTP トランスポートを使ったステートレス サーバー（ステートフル対応のガイダンスは今後提供予定）
+-   Azure Functions のフレックス従量課金プランでのホスティング
+
+公式サンプル リポジトリ
+
+-   Python: https://github.com/Azure-Samples/mcp-sdk-functions-hosting-python
+-   Node: https://github.com/Azure-Samples/mcp-sdk-functions-hosting-node
+-   .NET: https://github.com/Azure-Samples/mcp-sdk-functions-hosting-dotnet
+
+各リポジトリには、その言語の MCP SDK で実装された Weather MCP Server のサンプルが含まれ、Azure Functions Core Tools を使ったローカル実行方法と、`azd up` による数分でのデプロイ手順が記載されています。VS Code の拡張機能による接続はもちろん、Claude など他の MCP クライアントからも接続できます。本記事では Core Tools を使った手順も紹介していますが、`azd up` でも同様に素早くデプロイできます。
+
 このサンプルの最大の魅力は、**Azure Functions を全く意識せずに開発した既存の MCP サーバーを、ほんの少しの設定ファイル追加だけでクラウド（Azure）にホストできる**ことです。
 
 この記事では、実際にこのサンプルを使って以下の流れを体験していきます：
@@ -308,7 +326,7 @@ mcp = FastMCP("calculator", stateless_http=True, port=mcp_port)
 
 ### 1) Azure Functions リソースを作成（GUI）
 
-ランタイム スタックは **Python 3.12** にしてください。その他の設定はデフォルトのままで問題ありません。
+ホスティング プランは「**フレックス従量課金**」、ランタイム スタックは「**Python 3.12**」にしてください。その他の設定はデフォルトのままで問題ありません。
 
 ![Azure ポータルのリソース作成画面](/images/host-existing-mcp-server-on-azure-functions/create-function.png)
 
