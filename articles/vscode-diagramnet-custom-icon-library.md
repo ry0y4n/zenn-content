@@ -6,6 +6,10 @@ topics: ["vscode", "diagramsnet", "drawio", "azure", "microsoft"]
 published: true
 ---
 
+本記事は、[Microsoft Azure Tech Advent Calendar 2025](https://qiita.com/advent-calendar/2025/microsoft-azure-tech) 12 月 10 日の記事となります。
+
+> 公開日 1 月 2 日...(土下座)
+
 # TL;DR
 
 VS Code の diagrams.net 拡張機能（[Draw.io Integration](https://marketplace.visualstudio.com/items?itemName=hediet.vscode-drawio)）で **カスタム アイコン ライブラリ（`.xml`）** を扱いやすくするために、次の 2 つをまとめたポータル「[SVG to diagrams.net Library Converter](https://ry0y4n.github.io/vscode-diagrams-icon-builder/)」を公開しました。
