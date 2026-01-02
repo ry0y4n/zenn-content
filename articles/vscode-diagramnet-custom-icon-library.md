@@ -10,6 +10,11 @@ published: false
 
 VS Code の [Diagram.net 拡張機能](https://marketplace.visualstudio.com/items?itemName=hediet.vscode-drawio) でカスタム アイコン ライブラリを使うための「SVG 変換」と「自動更新機能付き事前作成ライブラリ」の 2 機能を提供する「[SVG to Draw.io Library Converter](https://github.com/ry0y4n/diagramnet-icon-libraries)」を開発して公開しました。
 
+![ヒーロー イメージ：ポータル サイトのスクリーンショット](/images/vscode-diagramnet-custom-icon-library/converter.png)
+
+- SVG to Draw.io Library Converter: https://ry0y4n.github.io/diagramnet-icon-libraries/
+- GitHub リポジトリ: https://github.com/ry0y4n/diagramnet-icon-libraries
+
 # 背景
 
 会社の年末オールハンズにて、社内のシニア エンジニアから、VS Code の Diagram.net 拡張機能でアーキテクチャ図を描く方法を教えてもらいました。
@@ -103,3 +108,5 @@ GitHub Copilot がある今、Fetcher の実装は思ったより簡単でした
 - 他のクラウド サービス（AWS、Google Cloud など）のアイコンライブラリの追加
 - ユーザーが自分でライブラリを追加・共有できる仕組みの構築
 - ユーザーからのフィードバックを元にした機能改善
+
+> 正直、普段使わないサービスの Fetcher を実装するモチベはあまりないので、もしコミュニティからの貢献があれば嬉しいです...!!!
