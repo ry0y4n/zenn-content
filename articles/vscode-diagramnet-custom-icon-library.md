@@ -93,7 +93,7 @@ GitHub Copilot に `.drawio` ファイルを書かせると精度が想像以上
 
 一方で、diagrams.net の標準ライブラリ（Azure など）は「古いデザインのまま」「新しいサービスのアイコンがまだ無い」といったケースがあり、図の見た目や正確性に影響していました。
 
-![VS Code のスクリーンショット：右側に GitHub Copilot チャット欄（AI エージェント アプリのアーキテクチャ図を `.drawio` ファイルで作成させている）、左側に diagrams.net 拡張機能による埋め込みエディター（生成されたファイルを開いているが、いくつかのアイコンが見つからず仮アイコンになっている）](/images/vscode-diagramnet-custom-icon-library/vscode-diagrams.net-extension-icon-problem.png)
+![VS Code のスクリーンショット：右側に GitHub Copilot チャット欄（AI エージェント アプリのアーキテクチャ図を `.drawio` ファイルで作成させている）、左側に diagrams.net 拡張機能による埋め込みエディター（生成されたファイルを開いているが、いくつかのアイコンが見つからず仮アイコンになっている）](/images/vscode-diagramnet-custom-icon-library/vscode-diagram.net-extension-icon-problem.png)
 
 普段、使っている Azure の最新アイコンをどうにか使いたいと思い、カスタム アイコンを追加する方法を調べたところ、「[最新の Azure アイコンと Visual Studio Code Draw.io Integration の活用](https://qiita.com/yaegashi/items/e661507765c48db09e2b)」という記事を見つけました。
 
