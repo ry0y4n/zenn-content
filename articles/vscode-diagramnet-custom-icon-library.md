@@ -28,7 +28,7 @@ VS Code の diagrams.net 拡張機能（[Draw.io Integration](https://marketplac
 
 ## 1. 事前生成ライブラリを使う（おすすめ）
 
-![事前生成のライブラリ群を使うためのスニペットをポータルからコピーして VS Code に貼り付けて設定するデモ](/images/vscode-diagramnet-custom-icon-library/prebuilt-custom-icon-demo.gif)
+![事前生成のライブラリ群を使うためのスニペットをポータルからコピーして VS Code に貼り付けて設定するデモ](https://github.com/ry0y4n/vscode-diagrams-icon-builder/blob/main/docs/images/prebuilt-custom-icon-demo.gif?raw=true)
 
 1. [ポータル](https://ry0y4n.github.io/vscode-diagrams-icon-builder/) を開く
 2. 使いたいライブラリを選び、VS Code 用のスニペットをコピーする
@@ -58,7 +58,7 @@ VS Code の diagrams.net 拡張機能（[Draw.io Integration](https://marketplac
 
 ## 2. 手元の SVG をライブラリ化する（不足分を自前で補完）
 
-![SVG ファイルをアップロードして、diagrams.net 用の XML ファイルに変換・ダウンロードして、VS Code でライブラリを設定してカスタム アイコンが使えることを確認するデモ](/images/vscode-diagramnet-custom-icon-library/converter-demo.gif)
+![SVG ファイルをアップロードして、diagrams.net 用の XML ファイルに変換・ダウンロードして、VS Code でライブラリを設定してカスタム アイコンが使えることを確認するデモ](https://github.com/ry0y4n/vscode-diagrams-icon-builder/blob/main/docs/images/converter-demo.gif?raw=true)
 
 1. ポータルの **Custom SVG Converter** へ SVG ファイル（複数可）をアップロードする
 2. 生成された `.xml` をダウンロードする
