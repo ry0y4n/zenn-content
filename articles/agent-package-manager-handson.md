@@ -356,7 +356,7 @@ apm init --yes
 name: apm-handson
 version: 1.0.0
 description: APM project for apm-handson
-author: <your-github-username>  # 実行環境の GitHub ユーザー名が自動で入る
+author: <your-github-username> # 実行環境の GitHub ユーザー名が自動で入る
 dependencies:
     apm: []
     mcp: []
@@ -589,6 +589,7 @@ Step 0 で押さえた通り、`apm audit --ci --policy org` は **`<your-org>/.
     ```bash
     git clone git@github.com:<your-org>/.github.git
     cd .github
+    touch apm-policy.yml
     ```
 
 2. リポのルートに `apm-policy.yml` を作る（本記事では以下の内容を使用）
