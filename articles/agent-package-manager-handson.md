@@ -334,6 +334,17 @@ apm --version
 
 ### Step 2. プロジェクトを初期化
 
+Step 0 を実施したかどうかで最初のコマンドが変わります。
+
+**Step 0 を実施した場合**（`<your-org>/apm-handson` を clone 済み）:
+
+```bash
+cd apm-handson
+apm init --yes
+```
+
+**Step 0 をスキップして① だけ試す場合**（ローカルにフォルダを作るだけ）:
+
 ```bash
 mkdir apm-handson && cd apm-handson
 apm init --yes
