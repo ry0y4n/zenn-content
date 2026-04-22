@@ -690,19 +690,32 @@ https://github.com/apm-handson-org/.github/blob/main/apm-policy.yml
                       category: apm-policy
     ```
 
-3. commit & push して PR を立て、マージする（初回はマージ後に main で走って Code Scanning の UI が初期化されます）
+3. commit & push して PR を立てる
 
     ```bash
     git add .github/workflows/apm-audit.yml
     git commit -m "ci: add apm audit workflow"
     git push origin ci/apm-audit
 
-    # そのまま gh CLI で PR 作成 & マージ
+    # gh CLI で PR 作成
     gh pr create --fill --base main
+    ```
+
+4. PR 画面で **`APM Policy Compliance` が緑 ✅** になることを確認する
+
+    paths filter に `.github/**` を含めているので、この PR 自体に対して workflow が初回起動します。緑になるのを待たずにマージしてしまうと、万一 workflow が壊れていた場合に気付かず main に入ってしまうので、必ず結果を見てからマージしましょう。コマンドラインで待ちたい場合は以下が便利です。
+
+    ```bash
+    gh pr checks --watch   # 全チェックが完了するまで待つ
+    ```
+
+5. ✅ を確認したらマージ → main に反映
+
+    ```bash
     gh pr merge --squash --delete-branch
     ```
 
-4. `https://github.com/<your-org>/apm-handson/actions` を開き、`APM Policy Compliance` が緑 ✅ で通っていることを確認
+6. `https://github.com/<your-org>/apm-handson/actions` を開き、main ブランチでも `APM Policy Compliance` が緑 ✅ で通っていることを確認（これで Code Scanning の UI が初期化されます）
 
 リファレンス実装の workflow はこちらです。
 
