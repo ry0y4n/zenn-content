@@ -640,6 +640,11 @@ https://github.com/apm-handson-org/.github/blob/main/apm-policy.yml
 
 2. `.github/workflows/apm-audit.yml` を新規作成し、次の内容を保存する
 
+    ```bash
+    mkdir -p .github/workflows
+    touch .github/workflows/apm-audit.yml
+    ```
+
     ```yaml:.github/workflows/apm-audit.yml
     name: APM Policy Compliance
 
