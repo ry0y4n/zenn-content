@@ -629,57 +629,84 @@ https://github.com/apm-handson-org/.github/blob/main/apm-policy.yml
 
 ### Step 2. ハンズオンリポ側の Actions を書く
 
-`apm-handson-org/apm-handson` の `.github/workflows/apm-audit.yml`:
+ここからは Step 0 で作った `<your-org>/apm-handson` 側の作業です（すでにローカルに clone 済みの想定）。手順は以下です。
 
-```yaml:.github/workflows/apm-audit.yml
-name: APM Policy Compliance
+1. リポに新しいブランチを切る（main 直 push でも動きますが、PR 経由の動作を確認したいので推奨）
 
-on:
-  pull_request:
-    paths:
-      - "apm.yml"
-      - "apm.lock.yaml"
-      - ".github/**"
-  push:
-    branches: [main]
-    paths:
-      - "apm.yml"
-      - "apm.lock.yaml"
-      - ".github/**"
+    ```bash
+    cd apm-handson
+    git switch -c ci/apm-audit
+    ```
 
-permissions:
-  contents: read
-  security-events: write  # upload-sarif に必要
+2. `.github/workflows/apm-audit.yml` を新規作成し、次の内容を保存する
 
-jobs:
-  apm-audit:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+    ```yaml:.github/workflows/apm-audit.yml
+    name: APM Policy Compliance
 
-      - name: Install APM CLI
-        run: curl -fsSL https://raw.githubusercontent.com/microsoft/apm/main/install.sh | bash
+    on:
+        pull_request:
+            paths:
+                - "apm.yml"
+                - "apm.lock.yaml"
+                - ".github/**"
+        push:
+            branches: [main]
+            paths:
+                - "apm.yml"
+                - "apm.lock.yaml"
+                - ".github/**"
 
-      - name: Baseline checks (lockfile + hidden Unicode)
-        run: apm audit --ci
+    permissions:
+        contents: read
+        security-events: write # upload-sarif に必要
 
-      - name: Policy checks (apm-handson-org/.github/apm-policy.yml)
-        run: apm audit --ci --policy org --no-cache -f sarif -o policy-report.sarif
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    jobs:
+        apm-audit:
+            runs-on: ubuntu-latest
+            steps:
+                - uses: actions/checkout@v4
 
-      - name: Upload SARIF to Code Scanning
-        if: always()
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: policy-report.sarif
-          category: apm-policy
-```
+                - name: Install APM CLI
+                  run: curl -fsSL https://raw.githubusercontent.com/microsoft/apm/main/install.sh | bash
+
+                - name: Baseline checks (lockfile + hidden Unicode)
+                  run: apm audit --ci
+
+                - name: Policy checks (<your-org>/.github/apm-policy.yml)
+                  run: apm audit --ci --policy org --no-cache -f sarif -o policy-report.sarif
+                  env:
+                      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+                - name: Upload SARIF to Code Scanning
+                  if: always()
+                  uses: github/codeql-action/upload-sarif@v3
+                  with:
+                      sarif_file: policy-report.sarif
+                      category: apm-policy
+    ```
+
+3. commit & push して PR を立て、マージする（初回はマージ後に main で走って Code Scanning の UI が初期化されます）
+
+    ```bash
+    git add .github/workflows/apm-audit.yml
+    git commit -m "ci: add apm audit workflow"
+    git push origin ci/apm-audit
+
+    # そのまま gh CLI で PR 作成 & マージ
+    gh pr create --fill --base main
+    gh pr merge --squash --delete-branch
+    ```
+
+4. `https://github.com/<your-org>/apm-handson/actions` を開き、`APM Policy Compliance` が緑 ✅ で通っていることを確認
+
+リファレンス実装の workflow はこちらです。
+
+https://github.com/apm-handson-org/apm-handson/blob/main/.github/workflows/apm-audit.yml
 
 ポイント:
 
 - **Baseline と Policy を別ステップに**。Baseline（lockfile 整合性・不可視 Unicode）は `apm-policy.yml` がなくても効く基礎チェック。
-- `--policy org` で GitHub API から org の `apm-policy.yml` を自動取得
+- `--policy org` で GitHub API から org の `apm-policy.yml` を自動取得（`GITHUB_TOKEN` が必要）
 - `-f sarif` で出力すると、`github/codeql-action/upload-sarif@v3` で **GitHub Code Scanning** にそのまま載せられる
 - `if: always()` をつけておくと、audit が落ちても SARIF はアップロードされる
 
