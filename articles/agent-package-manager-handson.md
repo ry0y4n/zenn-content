@@ -356,7 +356,7 @@ apm init --yes
 name: apm-handson
 version: 1.0.0
 description: APM project for apm-handson
-author: ry0y4n
+author: <your-github-username>  # 実行環境の GitHub ユーザー名が自動で入る
 dependencies:
     apm: []
     mcp: []
@@ -365,17 +365,35 @@ scripts: {}
 
 ### Step 3. 依存を 1 つ入れてみる
 
-本記事では、LT スライドでも紹介されていた **`github/awesome-copilot` の `context-engineering` プラグイン**をコミット SHA ピン付きで入れます。
+本記事では、LT スライドでも紹介されていた **`github/awesome-copilot` の `context-engineering` プラグイン** を入れていきます。
+
+まず、いちばん素直な書き方 — **ref を指定せずに install** — を試します。
 
 ```bash
-# main の最新 SHA をメモして
-SHA=$(gh api repos/github/awesome-copilot/commits/main --jq '.sha')
+apm install github/awesome-copilot/plugins/context-engineering
+```
 
-# フル SHA でピン留めして install
+`apm install` はこのとき以下のことを自動でやってくれます。
+
+- 対象リポのデフォルトブランチの **最新コミット SHA を解決**
+- それを **40 桁フル SHA で `apm.lock.yaml` にピン留め**
+- 次回以降 `apm install` すると、ロックの SHA 通りに再現インストール
+
+つまり **普段は SHA を自分で調べる必要はありません**。「何を install したか」は lockfile に自動で残ります。
+
+一方で、本番運用や再現性をさらに厳しく担保したいとき（または特定コミットに固定したいとき）は、`#` の後にフル SHA を明示的に渡すこともできます。
+
+```bash
+# 例) 明示的にフル SHA を指定したい場合
+SHA=$(gh api repos/github/awesome-copilot/commits/main --jq '.sha')
 apm install "github/awesome-copilot/plugins/context-engineering#$SHA"
 ```
 
-実行結果（抜粋）:
+:::message
+`#` の後ろに渡せるのはフル SHA 以外に **タグ・ブランチ名** も OK です。ただし APM は **短縮 SHA は拒否** します（タグ差し替えや branch 再書き換えによる汚染を避けるため、lockfile には常にフル SHA が入ります）。
+:::
+
+実行結果（抜粋、いずれの書き方でも同じ構造になります）:
 
 ```text
 [+] github/awesome-copilot/plugins/context-engineering#63d08d51...
@@ -564,26 +582,45 @@ apm install untrusted-org/evil-skill    # ← ローカルでは通ってしま�
 
 ### Step 1. `<org>/.github/apm-policy.yml` を置く
 
-Step 0 で押さえた通り、`apm audit --ci --policy org` は **`<your-org>/.github` リポジトリの `apm-policy.yml`** を自動参照します。実際にファイルを置いていきましょう。
+Step 0 で押さえた通り、`apm audit --ci --policy org` は **`<your-org>/.github` リポジトリの `apm-policy.yml`** を自動参照します。具体的な手順に落とすと以下です（[Step 0（任意）](#step-0.（任意）自分の-org-とハンズオンリポを用意する) で `<your-org>/.github` リポを作成済みである前提）。
 
-本記事のリファレンス実装（`apm-handson-org`）では、以下の内容で配置しています。
+1. ローカルに `<your-org>/.github` を clone する
+
+    ```bash
+    git clone git@github.com:<your-org>/.github.git
+    cd .github
+    ```
+
+2. リポのルートに `apm-policy.yml` を作る（本記事では以下の内容を使用）
+
+    ```yaml:apm-policy.yml
+    name: "apm-handson-org Policy"
+    enforcement: block # block | warn | off
+
+    dependencies:
+        # Deny any dependency whose repo name begins with "evil-".
+        deny:
+            - "*/evil-*/**"
+
+    mcp:
+        self_defined: warn
+        transport:
+            allow: [stdio, streamable-http]
+    ```
+
+3. commit & push（デフォルトブランチに入っていれば OK、PR 経由でも可）
+
+    ```bash
+    git add apm-policy.yml
+    git commit -m "chore: add apm-policy.yml"
+    git push origin main
+    ```
+
+4. ブラウザで `https://github.com/<your-org>/.github/blob/main/apm-policy.yml` を開き、**raw で閲覧できる**ことを確認する
+
+リファレンス実装はこちらです。
 
 https://github.com/apm-handson-org/.github/blob/main/apm-policy.yml
-
-```yaml:apm-policy.yml
-name: "apm-handson-org Policy"
-enforcement: block  # block | warn | off
-
-dependencies:
-  # Deny any dependency whose repo name begins with "evil-".
-  deny:
-    - "*/evil-*/**"
-
-mcp:
-  self_defined: warn
-  transport:
-    allow: [stdio, streamable-http]
-```
 
 :::message
 **glob の書き方に注意**。`*/evil-*` だと `owner/evil-repo` の 2 セグメントしか拾わず、`owner/evil-repo/skills/hello` のようにサブパス指定で install された依存を取りこぼします。`/**` サフィックスをつけて `*/evil-*/**` にしておくと、サブパス依存もまとめてブロックできます。
