@@ -418,11 +418,19 @@ $ find .github -type f | sort
 
 ### Step 4. 再現性を体感する ＝ 新メンバーの初日を再現する
 
-ここまでの成果物（`apm.yml`, `apm.lock.yaml`, `.github/`）をコミットしたうえで、**チームに新メンバーが入ってきた状況** をシミュレーションしてみます。生成物をいったん全削除して `apm install` すると、ロックファイル通りに復元されます。
+まずはここまでの成果物（`apm.yml`, `apm.lock.yaml`, `.gitignore`, `.github/`）をリモートに push しておきます。次のハンズオン②で CI から `apm.yml` / `apm.lock.yaml` を読むため、ここで main に上げておかないと workflow だけ push しても audit が空振りします。
+
+```bash
+git add apm.yml apm.lock.yaml .gitignore .github/
+git commit -m "chore: apm install (context-engineering)"
+git push origin main
+```
+
+そのうえで、**チームに新メンバーが入ってきた状況** をシミュレーションしてみます。生成物（`apm_modules/` と `apm install` で展開された `.github/agents/` `.github/skills/`）をいったん全削除して `apm install` すると、ロックファイル通りに復元されます。
 
 ```bash
 # 「新メンバーがまだ何も持っていない」状態を作る
-rm -rf apm_modules .github
+rm -rf apm_modules .github/agents .github/skills
 
 # 新メンバーが README を読んでこのコマンドを叩く想定
 apm install
