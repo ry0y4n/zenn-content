@@ -285,19 +285,12 @@ APM のセキュリティ設計を理解するには、**npm との違い**を�
 
 以降で出てくる [`apm-handson-org/apm-handson`](https://github.com/apm-handson-org/apm-handson) は、**完成形のリファレンス** として公開しているものです。`apm.yml` / `apm.lock.yaml` / CI workflow / policy ファイル等を実際に動かした状態で置いてあるので、コードや設定の参照先として使ってください。
 
-追体験のレベルはハンズオン①と②で少し違います。
-
-| ハンズオン                       | clone だけで追体験できる？       | 自前の環境が必要？                                                            |
-| -------------------------------- | -------------------------------- | ----------------------------------------------------------------------------- |
-| **① `apm install`**              | ✅ できる（依存元は全て public） | 不要（ただし自分で `apm.yml` を書く経験を積みたいなら後述の **Step 0** 推奨） |
-| **② `apm audit` を CI で動かす** | ⚠️ 結果の閲覧のみ                | **必要**。`apm-policy.yml` を置く org と、Actions を回すリポが要る            |
-
-特にハンズオン②は `--policy org` が **リポジトリの owner 直下にある `.github` リポ** を見にいく仕様なので、自分の org（個人アカウントでも OK ですが Organization が無難）に置かないと実験になりません。後述の通り所要 org は 1 つで足ります。
+ただし、ハンズオン② の `apm audit --ci --policy org` は **リポジトリの owner 直下にある `.github` リポ** を見にいく仕様なので、自分の org（個人アカウントでも可ですが Organization が無難）に同じ構成を置かないと最後まで体験できません。次の Step 0 で **org とリポを 2 つ用意するところから始めます**。
 :::
 
-### Step 0.（任意）自分の org とハンズオンリポを用意する
+### Step 0. 自分の org とハンズオンリポを用意する
 
-ハンズオン②まで通しで体験したい場合、以下のセットアップを先にしておくと楽です（①だけなら不要）。
+ハンズオン①〜② を通しで体験するため、以下のセットアップを最初に済ませておきます。
 
 1. GitHub で **新規 Organization** を 1 つ作る（Free プランで OK）。
     - 名前は何でも OK です。例: `yourname-apm-handson` など。
@@ -349,19 +342,10 @@ apm --version
 
 ### Step 2. プロジェクトを初期化
 
-Step 0 を実施したかどうかで最初のコマンドが変わります。
-
-**Step 0 を実施した場合**（`<your-org>/apm-handson` を clone 済み）:
+`<your-org>/apm-handson` を clone したディレクトリで初期化します。
 
 ```bash
 cd apm-handson
-apm init --yes
-```
-
-**Step 0 をスキップして① だけ試す場合**（ローカルにフォルダを作るだけ）:
-
-```bash
-mkdir apm-handson && cd apm-handson
 apm init --yes
 ```
 
@@ -659,7 +643,7 @@ policy:
 
 ### Step 1. `<org>/.github/apm-policy.yml` を置く
 
-Step 0 で押さえた通り、`apm audit --ci --policy org` は **`<your-org>/.github` リポジトリの `apm-policy.yml`** を自動参照します。具体的な手順に落とすと以下です（[Step 0（任意）](#step-0.（任意）自分の-org-とハンズオンリポを用意する) で `<your-org>/.github` リポを作成済みである前提）。
+Step 0 で押さえた通り、`apm audit --ci --policy org` は **`<your-org>/.github` リポジトリの `apm-policy.yml`** を自動参照します。具体的な手順に落とすと以下です（[Step 0](#step-0.-自分の-org-とハンズオンリポを用意する) で `<your-org>/.github` リポを作成済みである前提）。
 
 1. ローカルに `<your-org>/.github` を clone する
 
