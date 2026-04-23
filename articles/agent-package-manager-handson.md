@@ -68,8 +68,6 @@ flowchart LR
 
 この問題に真正面から取り組んでいるのが、今回紹介する **Agent Package Manager (APM)** です。
 
-本記事は単なる公式ドキュメントの要約ではなく、実際に [`apm-handson-org/apm-handson`](https://github.com/apm-handson-org/apm-handson) というハンズオン用リポジトリを用意し、そこに対して `apm install` や `apm audit` を GitHub Actions で動かした結果を引用しながら進めます。読み終わったら自分の手元でそのまま再現できます。
-
 ## APM とは
 
 [microsoft/apm](https://github.com/microsoft/apm) の README にはこう書かれています。
@@ -316,22 +314,13 @@ C. の `apm-policy.yml` については、配置場所や書き方・ローカ�
     - `apm-handson` (public 必須): ハンズオン② で `apm audit` の SARIF を **GitHub Code Scanning** にアップロードしますが、Code Scanning は public リポなら無料、private リポでは GitHub Advanced Security (有料) が必要です。
     - `.github` (public 必須): CI 上の `apm audit --ci --policy org` は実行リポ側の `GITHUB_TOKEN` で `.github` リポの `apm-policy.yml` を取得します。`.github` が private だと別リポのトークンでは読めず、**警告 1 行 (`[!] Policy fetch failed: HTTP 401 …`) は出るもののデフォルト fail-open で pass してしまい**、違反検出のデモが成立しません（`apm.yml` で `policy.fetch_failure_default: block` を設定すれば fail-closed にできますが、本ハンズオンでは public 化で進めます）。
 
-    private で作ってしまった場合は次のコマンドで切り替えられます。
-
-    ```bash
-    gh repo edit <your-org>/apm-handson --visibility public --accept-visibility-change-consequences
-    gh repo edit <your-org>/.github     --visibility public --accept-visibility-change-consequences
-    ```
-
     :::
 
 3. ローカルで `apm-handson` を clone し、以降の Step は **このリポの中で** 作業します。
 
-**org 名を記事のどこかに手入力する必要はほぼありません**。理由:
-
-- `apm install` の対象は `microsoft/...` や `github/...` など **公開パッケージ側の owner** なので、あなたの org 名は出てきません
-- `apm audit --ci --policy org` は **git remote から owner を自動解決** するので、あなたの org 名をコマンドに書く必要がありません
-- 記事中に出てくる `apm-handson-org/...` は **私が公開しているリファレンス実装へのリンク** です（コピペせずリンクを開いて中身を確認する用途）
+    ```bash
+    git clone https://github.com/<your-org>/apm-handson.git
+    ```
 
 ### Step 1. APM CLI をインストール
 
@@ -388,8 +377,6 @@ apm install github/awesome-copilot/plugins/context-engineering
 - それを **40 桁フル SHA で `apm.lock.yaml` にピン留め**
 - 次回以降 `apm install` すると、ロックの SHA 通りに再現インストール
 
-つまり **普段は SHA を自分で調べる必要はありません**。「何を install したか」は lockfile に自動で残ります。
-
 一方で、本番運用や再現性をさらに厳しく担保したいとき（または特定コミットに固定したいとき）は、`#` の後にフル SHA を明示的に渡すこともできます。
 
 ```bash
@@ -404,21 +391,21 @@ apm install "github/awesome-copilot/plugins/context-engineering#$SHA"
 
 実行結果（抜粋、いずれの書き方でも同じ構造になります）:
 
-```text
-[!] Policy: org:<your-org>/.github -- enforcement=block
-[+] github/awesome-copilot/plugins/context-engineering#63d08d51...
+```bash
+[*] Validating 1 package...
+[+] github/awesome-copilot/plugins/context-engineering
 [*] Updated apm.yml with 1 new package(s)
 [>] Installing 1 new package...
-  [+] github.com/github/awesome-copilot/plugins/context-engineering#63d08d51... (cached)
+  [+] github.com/github/awesome-copilot/plugins/context-engineering (cached)
   |-- 1 agents integrated -> .github/agents/
   |-- 3 skill(s) integrated -> .github/skills/
+[i] Added apm_modules/ to .gitignore
+
+-- Diagnostics --
+  [i] 1 dependency has no pinned version -- pin with #tag or #sha to prevent drift
 
 [*] Installed 1 APM dependency.
 ```
-
-:::message
-冒頭に `[!] Policy: org:<your-org>/.github -- enforcement=block` という行が出ているのは、APM v0.9 系から **`apm install` が実行時に org の `apm-policy.yml` を fetch し、deny 違反をローカルでブロック** するようになったためです（後述「セキュリティ」章で詳説）。今回の依存はホワイトリストに反していないので、そのまま install が通っています。なお 2 回目以降は `(cached, fetched Xm ago)` のようにキャッシュ参照表記が付きます。
-:::
 
 ツリーを見ると、`.github/` 以下に agent と skill が配置されていることが分かります。
 
@@ -459,19 +446,11 @@ apm install     # ← これで終わり。Copilot / Claude / Cursor 全部に�
 
 という新メンバー向けのオンボーディング手順になります。`README` に `apm install` と一行書くだけで、**チーム共通のエージェント設定が即座に揃う** のが APM の体験価値です。
 
-:::message alert
-**コミット SHA は必ずフル 40 桁で**。APM は短縮 SHA を拒否します。汚染経路（タグ差し替え / branch 再書き換え）を塞ぐための仕様です。
-:::
-
 ---
 
 ハンズオン①はここまでです。便利さを体感できたところで、次は同じリポを使って、会社ルールを CI で強制する側（`apm audit`）を動かしていきます。`apm install` では触れなかった **`apm-policy.yml`** が主役になります。
 
 ## ハンズオン ②: `apm audit` を GitHub Actions で動かす
-
-:::message alert
-**ここから先は自分の org / repo が必要です。** [ハンズオン①](#ハンズオン-①-apm-install-を実際に動かす) 冒頭の **Step 0** で作った `<your-org>` 相当の環境で進めてください。[`apm-handson-org/apm-handson`](https://github.com/apm-handson-org/apm-handson) を clone しただけでは policy の差し替えや Actions 実行は行えません（結果ページの閲覧は可能）。
-:::
 
 ### Step 0. `apm-policy.yml` とは — ハンズオン② の基礎知識
 
@@ -535,12 +514,6 @@ apm install ry0y4n/evil-sample-skill/skills/hello --no-policy
 #     the same policy violation.
 ```
 
-ポイントを整理すると:
-
-- **ローカル = fast feedback**: deny 違反は手元で即時ブロックされ、コミット〜push〜CI を回す前に気づける
-- **CI = 最終ゲート**: `--no-policy` で意図的にバイパスされた PR や、悪意ある手元設定を想定し、`apm audit --ci --policy org` がバイパス不可の最後の砦
-- **思想**: _「ローカルでも CI でも同じルール、ただしローカルは緩めの逃げ道あり」_ という defense in depth
-
 #### 📌 ポリシー取得失敗時は **デフォルト fail-open**
 
 ネットワーク不調や `<org>/.github` リポジトリが private で読めない場合など、policy が取得できなかった時は警告を出した上で **そのまま pass** します（fail-open）。
@@ -569,15 +542,31 @@ policy:
 
 ### 全体像
 
-```text
-[開発者ローカル]                                    [CI / Pull Request]
- apm install                                         apm audit --ci --policy org
-     │                                                   │
- ① 不可視 Unicode を自動ブロック                      6 baseline + 16 policy = 22 checks
- ② org policy を fetch → deny 違反は即ブロック        違反 → exit 1 → PR マージ不可
-    （--no-policy で 1 回だけバイパス可）              （バイパス不可・SARIF を Code Scanning へ）
-     ▼                                                   ▼
- .github/ 等に配置                                    レビュアーが PR でアラート確認
+```mermaid
+flowchart LR
+    subgraph Local["開発者ローカル"]
+        direction TB
+        L0["apm install"]
+        L1["不可視 Unicode を自動ブロック"]
+        L2["org policy を fetch<br/>→ deny 違反は即ブロック<br/><sub>(--no-policy で 1 回だけバイパス可)</sub>"]
+        L3["apm.yml をアップデート"]
+        L0 --> L1 --> L2 --> L3
+    end
+
+    subgraph CI["CI / Pull Request"]
+        direction TB
+        C0["apm audit --ci --policy org"]
+        C1["6 baseline + 16 policy<br/>= 22 checks"]
+        C2["違反 → exit 1<br/>→ PR マージ不可<br/><sub>(バイパス不可・SARIF を Code Scanning へ)</sub>"]
+        C3["レビュアーが PR でアラート確認"]
+        C0 --> C1 --> C2 --> C3
+    end
+
+    Policy[("&lt;org&gt;/.github/<br/>apm-policy.yml")]
+    Policy -. fetch .-> L2
+    Policy -. fetch .-> C1
+
+    L3 -. push / PR .-> C0
 ```
 
 ローカルでも CI でも同じ `apm-policy.yml` を見るので、**ルールは 1 か所、適用は 2 段** という defense in depth になっています。CI 側は `--no-policy` を許容しないので、ローカルでバイパスされた PR もここで必ず止まります。
@@ -653,8 +642,6 @@ policy:
 
 ### Step 1. `<org>/.github/apm-policy.yml` を置く
 
-Step 0 で押さえた通り、`apm audit --ci --policy org` は **`<your-org>/.github` リポジトリの `apm-policy.yml`** を自動参照します。具体的な手順に落とすと以下です（[Step 0](#step-0.-自分の-org-とハンズオンリポを用意する) で `<your-org>/.github` リポを作成済みである前提）。
-
 1. ローカルに `<your-org>/.github` を clone する
 
     ```bash
@@ -688,28 +675,18 @@ Step 0 で押さえた通り、`apm audit --ci --policy org` は **`<your-org>/.
     git push origin main
     ```
 
-4. ブラウザで `https://github.com/<your-org>/.github/blob/main/apm-policy.yml` を開き、**raw で閲覧できる**ことを確認する
-
-リファレンス実装はこちらです。
-
-https://github.com/apm-handson-org/.github/blob/main/apm-policy.yml
-
-:::message
-**glob の書き方に注意**。`*/evil-*` だと `owner/evil-repo` の 2 セグメントしか拾わず、`owner/evil-repo/skills/hello` のようにサブパス指定で install された依存を取りこぼします。`/**` サフィックスをつけて `*/evil-*/**` にしておくと、サブパス依存もまとめてブロックできます。
-:::
-
 ### Step 2. ハンズオンリポ側の Actions を書く
 
 ここからは Step 0 で作った `<your-org>/apm-handson` 側の作業です（すでにローカルに clone 済みの想定）。手順は以下です。
 
-1. リポに新しいブランチを切る（main 直 push でも動きますが、PR 経由の動作を確認したいので推奨）
+1.  リポに新しいブランチを切る（main 直 push でも動きますが、PR 経由の動作を確認したいので推奨）
 
     ```bash
     cd apm-handson
     git switch -c ci/apm-audit
     ```
 
-2. `.github/workflows/apm-audit.yml` を新規作成し、次の内容を保存する
+2.  `.github/workflows/apm-audit.yml` を新規作成し、次の内容を保存する
 
     ```bash
     mkdir -p .github/workflows
@@ -763,7 +740,7 @@ https://github.com/apm-handson-org/.github/blob/main/apm-policy.yml
                       category: apm-policy
     ```
 
-3. commit & push して PR を立てる
+3.  commit & push して PR を立てる
 
     ```bash
     git add .github/workflows/apm-audit.yml
@@ -775,35 +752,19 @@ https://github.com/apm-handson-org/.github/blob/main/apm-policy.yml
     gh pr create --fill --base main
     ```
 
-4. PR 画面で **`APM Policy Compliance` が緑 ✅** になることを確認する
+4.  PR 画面で **`APM Policy Compliance` が緑 ✅** になることを確認する
 
-    paths filter に `.github/**` を含めているので、この PR 自体に対して workflow が初回起動します。緑になるのを待たずにマージしてしまうと、万一 workflow が壊れていた場合に気付かず main に入ってしまうので、必ず結果を見てからマージしましょう。コマンドラインで待ちたい場合は以下が便利です。
+    paths filter に `.github/**` を含めているので、この PR 自体に対して workflow が初回起動します。コマンドラインで待ちたい場合は以下が便利です。
 
     ```bash
     gh pr checks --watch   # 全チェックが完了するまで待つ
     ```
 
-5. ✅ を確認したらマージ → main に反映
+5.  ✅ を確認したらマージ → main に反映
 
     ```bash
     gh pr merge --squash --delete-branch
     ```
-
-6. main ブランチでも workflow が緑 ✅ で通ることを確認する
-
-    マージすると `.github/**` への push として **main 上でも workflow が自動実行** されます。コードページ（リポジトリ Top）ではなく、**Actions タブ** の workflow 一覧から確認します。
-
-    `https://github.com/<your-org>/apm-handson/actions/workflows/apm-audit.yml` を直接開くか、Actions タブ → 左サイドバーの「APM Policy Compliance」を選択 → ブランチフィルタを `main` にして、最新 run が ✅ になっていれば OK です。コマンドラインなら次でも確認できます。
-
-    ```bash
-    gh run list --workflow apm-audit.yml --branch main --limit 1
-    ```
-
-    この main 上の成功 run で SARIF がアップロードされると、**main を基準にした Code Scanning のベースライン** が作られ、以降の PR で違反が「新規アラート」として差分表示されるようになります。
-
-リファレンス実装の workflow はこちらです。
-
-https://github.com/apm-handson-org/apm-handson/blob/main/.github/workflows/apm-audit.yml
 
 ポイント:
 
@@ -897,12 +858,11 @@ https://github.com/apm-handson-org/apm-handson/pull/2
 
     ![apm audit の Policy checks ステップが exit code 1 で失敗している様子](/images/agent-package-manager-handson/actions-log-denylist.png)
 
-    ログ自体には `CI audit report written to policy-report.sarif` としか出ていない点に注目してください。本記事の workflow では `-f sarif -o policy-report.sarif` でファイル出力しているため、**違反の具体内容（どの依存がどのパターンで deny されたか）はコンソールには流れず、SARIF ファイルにだけ書き込まれます。**
+    本記事の workflow では `-f sarif -o policy-report.sarif` でファイル出力しているため、**違反の具体内容（どの依存がどのパターンで deny されたか）はコンソールには流れず、SARIF ファイルにだけ書き込まれます。**
 
 7. **PR 上で違反内容のアラートを確認する**
 
     その SARIF が Code Scanning にアップロードされ、PR スコープのアラートとして登録されます。**Security タブの Code scanning ページは既定で default branch (main) のみを表示する**ため、main にまだ違反が無いこの段階だと一覧には何も出ないように見えるかもしれません。PR 段階のアラートは次のいずれかで見ます:
-    - **PR の "Files changed" タブ** → `apm.yml` の該当行にインラインアラートが出る（一番分かりやすい）
     - **PR の "Checks" タブ** → `apm-audit` の "Details" を開くと、左ペインに Code scanning の結果が表示される
     - **Security and quality → Code scanning** ページでフィルタを **`pr:<番号>`** に切り替える
 
@@ -916,7 +876,7 @@ CI ログでも直接違反内容を見たい場合は、Policy checks のステ
 
 #### 確認後の後片付け
 
-違反 PR は **マージせずに close** しておきましょう（マージしてしまうと main が汚染された状態になります）。
+違反 PR は **マージせずに close** しておきましょう。
 
 ```bash
 gh pr close 2 --delete-branch
@@ -956,7 +916,7 @@ GITHUB_TOKEN=$(gh auth token) apm audit --ci --policy org --no-cache
 [x] 1 of 8 check(s) failed
 ```
 
-期待通りブロックできました 🛡️
+期待通りブロックできました。
 
 ## 運用 Tips
 
