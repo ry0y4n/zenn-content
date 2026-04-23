@@ -309,12 +309,19 @@ APM のセキュリティ設計を理解するには、**npm との違い**を�
     - `<your-org>/.github` … 後の Step でポリシーファイルを置くリポ（**リポ名に `.github` というドットから始まる名前を使うのがポイント**）
 
     :::message alert
-    **`apm-handson` リポは public で作成してください**（`.github` 側はどちらでも可）。ハンズオン② で `apm audit` の SARIF を **GitHub Code Scanning** にアップロードするステップがあり、Code Scanning は public リポなら無料、private リポでは GitHub Advanced Security (有料) が必要です。private で作ってしまった場合は次のコマンドで切り替えられます。
+    **`apm-handson` と `.github` の両方を public で作成してください**。
+    - `apm-handson` (public 必須): ハンズオン② で `apm audit` の SARIF を **GitHub Code Scanning** にアップロードしますが、Code Scanning は public リポなら無料、private リポでは GitHub Advanced Security (有料) が必要です。
+    - `.github` (public 必須): CI 上の `apm audit --ci --policy org` は実行リポ側の `GITHUB_TOKEN` で `.github` リポの `apm-policy.yml` を取得します。`.github` が private だと別リポのトークンでは読めず、**ポリシー無しの状態で silent に pass してしまい**、違反検出のデモが成立しません。
+
+    private で作ってしまった場合は次のコマンドで切り替えられます。
 
     ```bash
     gh repo edit <your-org>/apm-handson --visibility public --accept-visibility-change-consequences
+    gh repo edit <your-org>/.github     --visibility public --accept-visibility-change-consequences
     ```
+
     :::
+
 3. ローカルで `apm-handson` を clone し、以降の Step は **このリポの中で** 作業します。
 
 **org 名を記事のどこかに手入力する必要はほぼありません**。理由:
@@ -695,6 +702,7 @@ https://github.com/apm-handson-org/.github/blob/main/apm-policy.yml
                   run: apm audit --ci
 
                 - name: Policy checks (<your-org>/.github/apm-policy.yml)
+                  if: always() # Baseline が落ちても SARIF は必ず生成する
                   run: apm audit --ci --policy org --no-cache -f sarif -o policy-report.sarif
                   env:
                       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -752,9 +760,9 @@ https://github.com/apm-handson-org/apm-handson/blob/main/.github/workflows/apm-a
 ポイント:
 
 - **Baseline と Policy を別ステップに**。Baseline（lockfile 整合性・不可視 Unicode）は `apm-policy.yml` がなくても効く基礎チェック。
-- `--policy org` で GitHub API から org の `apm-policy.yml` を自動取得（`GITHUB_TOKEN` が必要）
+- `--policy org` で GitHub API から org の `apm-policy.yml` を自動取得（`GITHUB_TOKEN` が必要）。`<your-org>/.github` が public でないと workflow の `GITHUB_TOKEN` では読めない点に注意。
 - `-f sarif` で出力すると、`github/codeql-action/upload-sarif@v3` で **GitHub Code Scanning** にそのまま載せられる
-- `if: always()` をつけておくと、audit が落ちても SARIF はアップロードされる
+- **Policy checks と Upload SARIF の両方に `if: always()`** を付けておく。Baseline で違反が出た時点で workflow が止まると、Policy ステップがスキップされて SARIF が生成されず、Upload が `Path does not exist` で落ちます。`always()` を付けておけば、どちらが落ちても SARIF は必ず書き出され Code Scanning に届きます。
 
 ### Step 3. 違反 PR で落ちる様子を見る
 
@@ -807,9 +815,14 @@ https://github.com/apm-handson-org/apm-handson/pull/2
 
     ログ自体には `CI audit report written to policy-report.sarif` としか出ていない点に注目してください。本記事の workflow では `-f sarif -o policy-report.sarif` でファイル出力しているため、**違反の具体内容（どの依存がどのパターンで deny されたか）はコンソールには流れず、SARIF ファイルにだけ書き込まれます。**
 
-6. **Security タブ → Code scanning** を開き、違反内容のアラートを確認する
+6. **PR 上で違反内容のアラートを確認する**
 
-    その SARIF が Code Scanning にアップロードされるので、Security タブ（または PR 画面の check annotation）から詳細をアラートとして確認できます。ここで初めて `ry0y4n/evil-sample-skill/skills/hello` が `*/evil-*/**` の deny パターンにヒットした、という情報が見える形です。
+    その SARIF が Code Scanning にアップロードされ、PR スコープのアラートとして登録されます。**Security タブの Code scanning ページは既定で default branch (main) のみを表示する**ため、main にまだ違反が無いこの段階だと一覧には何も出ないように見えるかもしれません。PR 段階のアラートは次のいずれかで見ます:
+    - **PR の "Files changed" タブ** → `apm.yml` の該当行にインラインアラートが出る（一番分かりやすい）
+    - **PR の "Checks" タブ** → `apm-audit` の "Details" を開くと、左ペインに Code scanning の結果が表示される
+    - **Security and quality → Code scanning** ページでフィルタを **`pr:<番号>`** に切り替える
+
+    ここで初めて `ry0y4n/evil-sample-skill/skills/hello` が `*/evil-*/**` の deny パターンにヒットした、という情報がアラートとして見える形です。
 
     ![Code Scanning に apm-audit のアラートが載っている様子](/images/agent-package-manager-handson/code-scanning-alert.png)
 
@@ -822,7 +835,7 @@ CI ログでも直接違反内容を見たい場合は、Policy checks のステ
 違反 PR は **マージせずに close** しておきましょう（マージしてしまうと main が汚染された状態になります）。
 
 ```bash
-gh pr close --delete-branch
+gh pr close 2 --delete-branch
 ```
 
 #### （参考）手元で audit だけ再現する
@@ -830,13 +843,9 @@ gh pr close --delete-branch
 「PR まで立てずに、ローカルで CI と同じ違反検出だけ見たい」場合は、リファレンス実装の違反ブランチを直接 audit にかけるのが早いです。
 
 ```bash
-# リファレンスのハンズオンリポを clone し、違反 PR のブランチに切り替える
-git clone https://github.com/apm-handson-org/apm-handson.git
 cd apm-handson
 git switch feat/demo-policy-violation
 
-# GITHUB_TOKEN は `--policy org` が <org>/.github を GitHub API から取得するのに使う
-# gh CLI が入っていれば `gh auth token` でそのまま渡せる
 GITHUB_TOKEN=$(gh auth token) apm audit --ci --policy org --no-cache
 ```
 
