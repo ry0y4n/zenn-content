@@ -307,6 +307,14 @@ APM のセキュリティ設計を理解するには、**npm との違い**を�
 2. その org 内に **空のリポジトリ 2 つ** を作る（名前は記事と同じで OK）:
     - `<your-org>/apm-handson` … この記事で `apm install` していくリポ
     - `<your-org>/.github` … 後の Step でポリシーファイルを置くリポ（**リポ名に `.github` というドットから始まる名前を使うのがポイント**）
+
+    :::message alert
+    **`apm-handson` リポは public で作成してください**（`.github` 側はどちらでも可）。ハンズオン② で `apm audit` の SARIF を **GitHub Code Scanning** にアップロードするステップがあり、Code Scanning は public リポなら無料、private リポでは GitHub Advanced Security (有料) が必要です。private で作ってしまった場合は次のコマンドで切り替えられます。
+
+    ```bash
+    gh repo edit <your-org>/apm-handson --visibility public --accept-visibility-change-consequences
+    ```
+    :::
 3. ローカルで `apm-handson` を clone し、以降の Step は **このリポの中で** 作業します。
 
 **org 名を記事のどこかに手入力する必要はほぼありません**。理由:
@@ -672,6 +680,7 @@ https://github.com/apm-handson-org/.github/blob/main/apm-policy.yml
     permissions:
         contents: read
         security-events: write # upload-sarif に必要
+        actions: read # upload-sarif が workflow run 情報を取得するのに必要
 
     jobs:
         apm-audit:
@@ -724,7 +733,17 @@ https://github.com/apm-handson-org/.github/blob/main/apm-policy.yml
     gh pr merge --squash --delete-branch
     ```
 
-6. `https://github.com/<your-org>/apm-handson/actions` を開き、main ブランチでも `APM Policy Compliance` が緑 ✅ で通っていることを確認（これで Code Scanning の UI が初期化されます）
+6. main ブランチでも workflow が緑 ✅ で通ることを確認する
+
+    マージすると `.github/**` への push として **main 上でも workflow が自動実行** されます。コードページ（リポジトリ Top）ではなく、**Actions タブ** の workflow 一覧から確認します。
+
+    `https://github.com/<your-org>/apm-handson/actions/workflows/apm-audit.yml` を直接開くか、Actions タブ → 左サイドバーの「APM Policy Compliance」を選択 → ブランチフィルタを `main` にして、最新 run が ✅ になっていれば OK です。コマンドラインなら次でも確認できます。
+
+    ```bash
+    gh run list --workflow apm-audit.yml --branch main --limit 1
+    ```
+
+    この main 上の成功 run で SARIF がアップロードされると、**main を基準にした Code Scanning のベースライン** が作られ、以降の PR で違反が「新規アラート」として差分表示されるようになります。
 
 リファレンス実装の workflow はこちらです。
 
@@ -739,32 +758,79 @@ https://github.com/apm-handson-org/apm-handson/blob/main/.github/workflows/apm-a
 
 ### Step 3. 違反 PR で落ちる様子を見る
 
-テスト用に `ry0y4n/evil-sample-skill` という **無害なデモ用リポジトリ**（`*/evil-*/**` deny ルールにあえて引っかかる命名）を作り、それをハンズオンリポに install した PR を立てます。
+テスト用に `ry0y4n/evil-sample-skill` という **無害なデモ用リポジトリ**（`*/evil-*/**` deny ルールにあえて引っかかる命名）を用意しています。これをハンズオンリポに install した PR を立てて、`apm-audit` が ❌ で PR をブロックする様子を確認します。
+
+リファレンスとなる違反 PR はこちらです（実際にチェックが赤になっている状態）。
 
 https://github.com/apm-handson-org/apm-handson/pull/2
 
-PR トップ画面。`apm-audit` が ❌ で PR マージがブロックされているのが分かります。
+#### 手順
 
-![違反 PR で apm-audit チェックが失敗している様子](/images/agent-package-manager-handson/pr-failing-check.png)
+1. main を最新化して、違反パッケージ用のブランチを切る
 
-Actions の実行ログを開くと、`Policy checks` ステップが **exit code 1** で失敗していることが確認できます。
+    ```bash
+    cd apm-handson
+    git switch main
+    git pull origin main
+    git switch -c feat/demo-policy-violation
+    ```
 
-![apm audit の Policy checks ステップが exit code 1 で失敗している様子](/images/agent-package-manager-handson/actions-log-denylist.png)
+2. 違反パッケージを install する
 
-ログ自体には `CI audit report written to policy-report.sarif` としか出ていない点に注目してください。本記事の workflow では `-f sarif -o policy-report.sarif` でファイル出力しているため、**違反の具体内容（どの依存がどのパターンで deny されたか）はコンソールには流れず、SARIF ファイルにだけ書き込まれます。**
+    ```bash
+    apm install ry0y4n/evil-sample-skill/skills/hello
+    ```
 
-その SARIF が Code Scanning にアップロードされるので、Security タブ（または PR 画面の check annotation）から詳細をアラートとして確認できます。ここで初めて `ry0y4n/evil-sample-skill/skills/hello` が `*/evil-*/**` の deny パターンにヒットした、という情報が見える形です。
+    ローカルの `apm install` は **`apm-policy.yml` を見ない** 仕様（前述のとおり）なので、このコマンドは何事もなく成功します。`apm.yml` / `apm.lock.yaml` / `.github/skills/hello/` あたりに差分が出ているはずです。
 
-![Code Scanning に apm-audit のアラートが載っている様子](/images/agent-package-manager-handson/code-scanning-alert.png)
+3. commit & push して PR を立てる
+
+    ```bash
+    git add apm.yml apm.lock.yaml .github/
+    git commit -m "feat: install evil-sample-skill (demo violation)"
+    git push -u origin feat/demo-policy-violation
+
+    gh pr create --fill --base main
+    ```
+
+4. PR 画面で `apm-audit` が ❌ になり、マージがブロックされていることを確認する
+
+    ```bash
+    gh pr checks --watch
+    ```
+
+    ![違反 PR で apm-audit チェックが失敗している様子](/images/agent-package-manager-handson/pr-failing-check.png)
+
+5. Actions の実行ログを開き、`Policy checks` ステップが **exit code 1** で失敗していることを確認する
+
+    ![apm audit の Policy checks ステップが exit code 1 で失敗している様子](/images/agent-package-manager-handson/actions-log-denylist.png)
+
+    ログ自体には `CI audit report written to policy-report.sarif` としか出ていない点に注目してください。本記事の workflow では `-f sarif -o policy-report.sarif` でファイル出力しているため、**違反の具体内容（どの依存がどのパターンで deny されたか）はコンソールには流れず、SARIF ファイルにだけ書き込まれます。**
+
+6. **Security タブ → Code scanning** を開き、違反内容のアラートを確認する
+
+    その SARIF が Code Scanning にアップロードされるので、Security タブ（または PR 画面の check annotation）から詳細をアラートとして確認できます。ここで初めて `ry0y4n/evil-sample-skill/skills/hello` が `*/evil-*/**` の deny パターンにヒットした、という情報が見える形です。
+
+    ![Code Scanning に apm-audit のアラートが載っている様子](/images/agent-package-manager-handson/code-scanning-alert.png)
 
 :::message
 CI ログでも直接違反内容を見たい場合は、Policy checks のステップを 2 つに分けて「表形式で stdout 出力する用」と「SARIF を書き出す用」を別々に走らせるのが実用的です（例: 先に `apm audit --ci --policy org` → 失敗時でも `if: always()` で `-f sarif -o ...` を実行）。
 :::
 
-手元で同じ状態を再現したい場合は、違反パッケージを install した状態でブランチに切り替えて、次のコマンドを叩いてください。
+#### 確認後の後片付け
+
+違反 PR は **マージせずに close** しておきましょう（マージしてしまうと main が汚染された状態になります）。
 
 ```bash
-# ハンズオンリポを clone し、違反 PR のブランチに切り替える
+gh pr close --delete-branch
+```
+
+#### （参考）手元で audit だけ再現する
+
+「PR まで立てずに、ローカルで CI と同じ違反検出だけ見たい」場合は、リファレンス実装の違反ブランチを直接 audit にかけるのが早いです。
+
+```bash
+# リファレンスのハンズオンリポを clone し、違反 PR のブランチに切り替える
 git clone https://github.com/apm-handson-org/apm-handson.git
 cd apm-handson
 git switch feat/demo-policy-violation
