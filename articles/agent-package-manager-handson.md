@@ -695,11 +695,22 @@ https://github.com/apm-handson-org/.github/blob/main/apm-policy.yml
     ```bash
     git add .github/workflows/apm-audit.yml
     git commit -m "ci: add apm audit workflow"
-    git push origin ci/apm-audit
+
+    # -u を付けて upstream を設定しつつ push（初回 push 時に必須）
+    git push -u origin ci/apm-audit
 
     # gh CLI で PR 作成
     gh pr create --fill --base main
     ```
+
+    :::message
+    `gh pr create --fill` はリモートのコミット履歴(`origin/main...ci/apm-audit` の差分)からタイトル・本文を自動生成します。そのため以下のいずれかに該当すると `fatal: ambiguous argument 'origin/main...ci/apm-audit'` のようなエラーになります。
+
+    - ブランチをまだ push していない(または `-u` で upstream が紐付いていない)
+    - 未コミットの変更が残っていて、PR にしたい差分が反映されていない
+
+    `git status` で未コミット変更がないことを確認し、`git push -u origin <branch>` を済ませてから `gh pr create` を実行してください。
+    :::
 
 4. PR 画面で **`APM Policy Compliance` が緑 ✅** になることを確認する
 
