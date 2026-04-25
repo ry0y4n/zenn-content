@@ -19,7 +19,7 @@ publication_name: "microsoft"
 チーム内でこれらを **「どこから集めて、どこに配っていますか？」**
 
 :::message
-もちろん [`anthropics/skills`](https://github.com/anthropics/skills) や [`github/awesome-copilot`](https://github.com/github/awesome-copilot) のような良質なカタログには、専用の取り込み UI や CLI が用意されていて、ゼロから手で書くより遥かに楽に取り込めるようになってきています。それでも、**集約と配布の運用を自分たちで組む必要がある**というペインは残ります。
+[`anthropics/skills`](https://github.com/anthropics/skills) や [`github/awesome-copilot`](https://github.com/github/awesome-copilot) のような良質なカタログには、専用の取り込み UI や CLI が用意されていて、ゼロから手で書くより遥かに楽に取り込めるようになってきています。それでも、**集約と配布の運用を自分たちで組む必要がある**というペインは残ります。
 
 - **集め先が分かれている**: 社内の Agent Skill 置き場リポ、Anthropic の skills、GitHub Awesome Copilot、自チームのスニペット…と、取得元が複数に分かれる
 - **配り先もハーネスごとに分かれる**: 取ってきたものを Copilot / Claude / Cursor / OpenCode それぞれの置き場に反映する必要がある
@@ -96,10 +96,10 @@ flowchart LR
         codex[".codex/"]
     end
 
-    s1 -- ref & SHA で指定 --> yml
-    s2 -- ref & SHA で指定 --> yml
-    s3 -- ref & SHA で指定 --> yml
-    s4 -- ref & SHA で指定 --> yml
+    s1 -- タグ / SHA で指定 --> yml
+    s2 -- タグ / SHA で指定 --> yml
+    s3 -- タグ / SHA で指定 --> yml
+    s4 -- タグ / SHA で指定 --> yml
     yml --> cli
     cli --> copilot
     cli --> claude
@@ -119,8 +119,8 @@ flowchart LR
 
 - `apm.yml` に依存を宣言
 - `apm install` で全ハーネス（Copilot / Claude / Cursor / …）に一括展開
-- `apm.lock.yaml` でコミット SHA までピン留めし、再現性を保証
-- Microsoft org 配下の **MIT ライセンス OSS**（作者: [@danielmeppiel](https://github.com/danielmeppiel)）
+- `apm install` が `apm.lock.yaml` を自動生成し、コミットハッシュ（commit SHA）までピン留めして再現性を保証
+- Microsoft org 配下の **MIT ライセンス OSS**
 
 ### `apm.yml` のイメージ
 
@@ -149,14 +149,17 @@ GitHub / GitLab / Bitbucket / Azure DevOps / ローカルパス、なんでも�
 
 ```mermaid
 flowchart LR
-    subgraph IN ["📥 入力（あなたが書く）"]
+    subgraph WRITE ["✍️ あなたが書く"]
         yml["apm.yml<br/>依存の宣言"]
-        lock["apm.lock.yaml<br/>SHA ピン留め"]
     end
 
     apm(["⚙️ apm install"])
 
-    subgraph OUT ["📤 出力（自動生成）"]
+    subgraph LOCK ["🔒 自動生成 & commit してチームで共有"]
+        lock["apm.lock.yaml<br/>コミットハッシュで<br/>ピン留め"]
+    end
+
+    subgraph OUT ["📤 出力（実体ファイル / 自動生成）"]
         mod["apm_modules/<br/>（.gitignore）"]
         gh[".github/"]
         cl[".claude/"]
@@ -165,7 +168,8 @@ flowchart LR
     end
 
     yml --> apm
-    lock --> apm
+    apm -- 初回: 生成 --> lock
+    lock -- 2 回目以降: 読込 --> apm
     apm --> mod
     apm --> gh
     apm --> cl
@@ -178,7 +182,7 @@ flowchart LR
 ```
 my-project/
 ├── apm.yml             ← 宣言（commit 対象）
-├── apm.lock.yaml       ← 各依存のコミット SHA をピン留め（commit 対象）
+├── apm.lock.yaml       ← 各依存のコミットハッシュをピン留め（commit 対象）
 ├── apm_modules/        ← node_modules 相当（.gitignore）
 ├── .github/            ← Copilot が読む
 ├── .claude/            ← Claude Code が読む（runtime 設定時）
@@ -193,7 +197,7 @@ my-project/
 - `apm_modules/` は `.gitignore` に入れ、展開済みの `.github/` などはコミット推奨（clone 直後の github.com 上の Copilot にも効かせるため）
 
 :::message
-APM v0.8 系では、デフォルトでは `.github/` にのみ配置されます。他ハーネス向けの展開は `apm runtime setup claude` / `cursor` / `opencode` 等で明示的に有効化します。
+デフォルトでは `.github/` にのみ配置されます。他ハーネス向けの展開は `apm runtime setup claude` / `cursor` / `opencode` 等で明示的に有効化します。
 :::
 
 ## 何が嬉しいの？ — 開発者目線での 3 つの勝ち筋
@@ -226,11 +230,11 @@ sequenceDiagram
 
 「コーディング規約 v1.1 を出したので Copilot に反映してください」みたいなアナウンスをしたことがある方は多いと思います。APM だと以下のようになります。
 
-| 従来運用の一例                                         | APM                                                   |
-| ------------------------------------------------------ | ----------------------------------------------------- |
-| Slack 等で「最新版が出たので取り直してください」と告知 | `apm.yml` の ref を `v1.1` にバンプして PR            |
-| 反映タイミングはメンバーごとに多少ずれる               | **マージ後、全員が `git pull && apm install` で揃う** |
-| 誰が取り込んだかは追いづらい                           | `apm.lock.yaml` の diff がレビューに現れる            |
+| 従来運用の一例                                         | APM                                                         |
+| ------------------------------------------------------ | ----------------------------------------------------------- |
+| Slack 等で「最新版が出たので取り直してください」と告知 | `apm.yml` のバージョン指定（`#v1.1` の部分）をバンプして PR |
+| 反映タイミングはメンバーごとに多少ずれる               | **マージ後、全員が `git pull && apm install` で揃う**       |
+| 誰が取り込んだかは追いづらい                           | `apm.lock.yaml` の diff がレビューに現れる                  |
 
 ルールの配布が **Git の歴史に乗る** のが本質的な勝ち筋です。「誰が・いつ・どのバージョンを反映したか」が追えるようになります。
 
@@ -260,12 +264,12 @@ APM のセキュリティ設計を理解するには、**npm との違い**を�
 
 言い換えると、**`apm install` = 即ハーネスで実行** なので、「何を入れるか」は npm 以上に慎重にならざるを得ません。APM はこの前提の上で、次の 4 段構えの対策を用意しています。
 
-| 対策                                       | 一言で                                                                                                |
-| ------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
-| **A. コミットハッシュ（40 桁）でピン留め** | 中央 registry を使わず Git 直参照。短縮 SHA は拒否。                                                  |
-| **B. 不可視 Unicode スキャン**             | プロンプトに紛れた隠し文字（Tag chars 等）を検出してブロック。Glassworm 攻撃の主経路を塞ぐ            |
-| **C. `apm-policy.yml`**                    | 会社ルールを **ローカル `apm install` と CI `apm audit` の両方で強制**（ハンズオン②で実物を見せます） |
-| **D. ランタイム常駐なし / テレメトリなし** | `apm install` が終われば APM は消える                                                                 |
+| 対策                                               | 一言で                                                                                                                                     |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| **A. lockfile に 40 桁コミットハッシュを焼き付け** | 中央 registry を介さず Git から直接 fetch。`apm.lock.yaml` に常に 40 桁フル SHA が記録されるので、タグや branch 指定でも再現性が担保される |
+| **B. 不可視 Unicode スキャン**                     | プロンプトに紛れた隠し文字（Tag chars 等）を検出してブロック。Glassworm 攻撃の主経路を塞ぐ                                                 |
+| **C. `apm-policy.yml`**                            | 会社ルールを **ローカル `apm install` と CI `apm audit` の両方で強制**（ハンズオン②で実物を見せます）                                      |
+| **D. ランタイム常駐なし / テレメトリなし**         | `apm install` が終われば APM は消える                                                                                                      |
 
 :::message
 **Glassworm (2026)**: 目に見えない Unicode（Tag characters など）で LLM にだけ届く隠し指示をプロンプトに埋め込む、実在の攻撃手法。APM `install` は配置前にこれを自動ブロックします。
@@ -275,12 +279,12 @@ C. の `apm-policy.yml` については、配置場所や書き方・ローカ�
 
 ## ハンズオンの全体像
 
-これから 2 本立てのハンズオンで、APM の「**取得**」と「**統治**」の両面を体験します。
+これから 2 本立てのハンズオンで、APM の「**調達**」と「**ガバナンス**」の両面を体験します。
 
-| ハンズオン                           | テーマ                      | やること                                                                                                                                                                                                                                         | 役割イメージ |
-| ------------------------------------ | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------ |
-| **① `apm install`**                  | **Reproducible な「取得」** | 公開されている agent / skill パッケージを `apm install` で取り込み、`apm.yml` / `apm.lock.yaml` に **40 桁 SHA でピン留め** されることを確認する。新メンバー初日の再現セットアップも体感する。                                                   | 利用者として |
-| **② `apm-policy.yml` + `apm audit`** | **組織ルールでの「統治」**  | org 共通の `apm-policy.yml` を `<org>/.github` リポに配置し、**ローカル `apm install` と CI `apm audit --ci --policy org` の両方で deny ルールを強制** する。違反 PR が GitHub Actions で止まり、Code Scanning に SARIF が上がるところまで通す。 | 管理者として |
+| ハンズオン                           | テーマ                           | やること                                                                                                                                                                                                                                         | 役割イメージ |
+| ------------------------------------ | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------ |
+| **① `apm install`**                  | **再現性のある「調達」**         | 公開されている agent / skill パッケージを `apm install` で取り込み、`apm.yml` / `apm.lock.yaml` に **40 桁のコミットハッシュでピン留め** されることを確認する。新メンバー初日の再現セットアップも体感する。                                      | 利用者として |
+| **② `apm-policy.yml` + `apm audit`** | **組織ルールでの「ガバナンス」** | org 共通の `apm-policy.yml` を `<org>/.github` リポに配置し、**ローカル `apm install` と CI `apm audit --ci --policy org` の両方で deny ルールを強制** する。違反 PR が GitHub Actions で止まり、Code Scanning に SARIF が上がるところまで通す。 | 管理者として |
 
 ①でパッケージマネージャとしての基本動作を押さえ、②でそれを「組織として安全に運用する」ためのガードレールを敷く、という流れです。次の Step 0 でまず両ハンズオン共通の足場（org ＋ 2 リポ）を作ります。
 
@@ -288,31 +292,20 @@ C. の `apm-policy.yml` については、配置場所や書き方・ローカ�
 
 ここから実機で動かしていきます。
 
-:::message
-
-### 📌 このハンズオンリポについて
-
-以降で出てくる [`apm-handson-org/apm-handson`](https://github.com/apm-handson-org/apm-handson) は、**完成形のリファレンス** として公開しているものです。`apm.yml` / `apm.lock.yaml` / CI workflow / policy ファイル等を実際に動かした状態で置いてあるので、コードや設定の参照先として使ってください。
-
-:::
-
 ### Step 0. 自分の org とハンズオンリポを用意する
 
 ハンズオン①〜② を通しで体験するため、以下のセットアップを最初に済ませておきます。
 
 1. GitHub で **新規 Organization** を 1 つ作る（Free プランで OK）。
     - 名前は何でも OK です。例: `yourname-apm-handson` など。
-    - :::message
-      GitHub の **org 名はグローバルユニーク** なので、この記事の `apm-handson-org` と同じ名前は使えません。ただし **repo 名は org 内ユニーク** なので、下の 2 つは **そのままの名前で作って大丈夫** です。
-      :::
 2. その org 内に **空のリポジトリ 2 つ** を作る（名前は記事と同じで OK）:
-    - `<your-org>/apm-handson` … この記事で `apm install` していくリポ
-    - `<your-org>/.github` … 後の Step でポリシーファイルを置くリポ（**リポ名に `.github` というドットから始まる名前を使うのがポイント**）
+    - **`<your-org>/apm-handson`** … この記事で `apm install` していくリポ
+    - **`<your-org>/.github`** … 後の Step でポリシーファイルを置くリポ（**リポ名は `.github` 固定**。`apm audit --policy org` は `<org>/.github/apm-policy.yml` を読みに行く仕様なので、他の名前にはできません）
 
     :::message alert
     **`apm-handson` と `.github` の両方を public で作成してください**。
-    - `apm-handson` (public 必須): ハンズオン② で `apm audit` の SARIF を **GitHub Code Scanning** にアップロードしますが、Code Scanning は public リポなら無料、private リポでは GitHub Advanced Security (有料) が必要です。
-    - `.github` (public 必須): CI 上の `apm audit --ci --policy org` は実行リポ側の `GITHUB_TOKEN` で `.github` リポの `apm-policy.yml` を取得します。`.github` が private だと別リポのトークンでは読めず、**警告 1 行 (`[!] Policy fetch failed: HTTP 401 …`) は出るもののデフォルト fail-open で pass してしまい**、違反検出のデモが成立しません（`apm.yml` で `policy.fetch_failure_default: block` を設定すれば fail-closed にできますが、本ハンズオンでは public 化で進めます）。
+    - `apm-handson`: ハンズオン② で `apm audit` の SARIF を **GitHub Code Scanning** にアップロードしますが、Code Scanning は public リポなら無料、private リポでは GitHub Advanced Security (有料) が必要です。
+    - `.github`: CI 上の `apm audit --ci --policy org` は実行リポ側の `GITHUB_TOKEN` で `.github` リポの `apm-policy.yml` を取得します。`.github` が private だと別リポのトークンでは読めず、**警告 1 行 (`[!] Policy fetch failed: HTTP 401 …`) は出るもののデフォルト fail-open で pass してしまい**、違反検出のデモが成立しません（`apm.yml` で `policy.fetch_failure_default: block` を設定すれば fail-closed にできますが、本ハンズオンでは public 化で進めます）。
 
     :::
 
@@ -363,9 +356,9 @@ scripts: {}
 
 ### Step 3. 依存を 1 つ入れてみる
 
-本記事では、LT スライドでも紹介されていた **`github/awesome-copilot` の `context-engineering` プラグイン** を入れていきます。
+本記事では例として **[`github/awesome-copilot`](https://github.com/github/awesome-copilot) の [`context-engineering` プラグイン](https://github.com/github/awesome-copilot/tree/main/plugins/context-engineering)** を入れていきます。
 
-まず、いちばん素直な書き方 — **ref を指定せずに install** — を試します。
+まず、いちばん素直な書き方を試します。
 
 ```bash
 apm install github/awesome-copilot/plugins/context-engineering
@@ -373,7 +366,7 @@ apm install github/awesome-copilot/plugins/context-engineering
 
 `apm install` はこのとき以下のことを自動でやってくれます。
 
-- 対象リポのデフォルトブランチの **最新コミット SHA を解決**
+- 対象リポのデフォルトブランチの **最新コミットハッシュを解決**
 - それを **40 桁フル SHA で `apm.lock.yaml` にピン留め**
 - 次回以降 `apm install` すると、ロックの SHA 通りに再現インストール
 
@@ -386,7 +379,7 @@ apm install "github/awesome-copilot/plugins/context-engineering#$SHA"
 ```
 
 :::message
-`#` の後ろに渡せるのはフル SHA 以外に **タグ・ブランチ名** も OK です。ただし APM は **短縮 SHA は拒否** します（タグ差し替えや branch 再書き換えによる汚染を避けるため、lockfile には常にフル SHA が入ります）。
+`#` の後ろに渡せるのはフル SHA 以外に **タグ・ブランチ名・短縮 SHA（7 文字以上）** も OK です。どの形で指定しても、APM は `apm.lock.yaml` の `resolved_commit` に **常に 40 桁のフル SHA を記録** する仕様（[Lock File Specification §4.2](https://microsoft.github.io/apm/reference/lockfile-spec/#42-dependency-entries) で `resolved_commit` は MUST「Full 40-character commit SHA」と規定）なので、タグ差し替えや branch 再書き換えがあっても、ピン留めされた瞬間のコミットが再現されます。
 :::
 
 実行結果（抜粋、いずれの書き方でも同じ構造になります）:
@@ -439,7 +432,7 @@ apm install
 
 `.github/` や `apm_modules/` が数秒で復元されるはずです。これがそのまま、
 
-```
+```bash
 git clone <repo>
 apm install     # ← これで終わり。Copilot / Claude / Cursor 全部に効く
 ```
@@ -677,12 +670,11 @@ flowchart LR
 
 ### Step 2. ハンズオンリポ側の Actions を書く
 
-ここからは Step 0 で作った `<your-org>/apm-handson` 側の作業です（すでにローカルに clone 済みの想定）。手順は以下です。
+ここからは Step 0 で作った `<your-org>/apm-handson` 側の作業です。手順は以下です。
 
 1.  リポに新しいブランチを切る（main 直 push でも動きますが、PR 経由の動作を確認したいので推奨）
 
     ```bash
-    cd apm-handson
     git switch -c ci/apm-audit
     ```
 
@@ -768,12 +760,11 @@ flowchart LR
 
 ポイント:
 
-- **Baseline と Policy を別ステップに**。Baseline（lockfile 整合性・不可視 Unicode）は `apm-policy.yml` がなくても効く基礎チェック。
-- `--policy org` で GitHub API から org の `apm-policy.yml` を自動取得（`GITHUB_TOKEN` が必要）。`<your-org>/.github` が public でないと workflow の `GITHUB_TOKEN` では読めない点に注意。
-- `-f sarif` で出力すると、`github/codeql-action/upload-sarif@v3` で **GitHub Code Scanning** にそのまま載せられる
-- **Policy checks と Upload SARIF の両方に `if: always()`** を付けておく。Baseline で違反が出た時点で workflow が止まると、Policy ステップがスキップされて SARIF が生成されず、Upload が `Path does not exist` で落ちます。`always()` を付けておけば、どちらが落ちても SARIF は必ず書き出され Code Scanning に届きます。
+- **Baseline と Policy を別ステップに**: Baseline（lockfile 整合性・不可視 Unicode）は `apm-policy.yml` がなくても効く基礎チェック
+- **`-f sarif` → Code Scanning**: `github/codeql-action/upload-sarif@v3` でそのまま **GitHub Code Scanning** に載る
+- **`if: always()` を Policy / Upload SARIF の両方に**: Baseline 違反で workflow が止まると SARIF が未生成のまま Upload が `Path does not exist` で落ちるため。`always()` を付けておけば必ず Code Scanning に届く
 
-### Step 3. ローカルブロック → `--no-policy` でバイパス → CI で再ブロック
+### Step 3. 二段ゲート（ローカル + CI）で違反パッケージを止める
 
 テスト用に `ry0y4n/evil-sample-skill` という **無害なデモ用リポジトリ**（`*/evil-*/**` deny ルールにあえて引っかかる命名）を用意しています。v0.9 系の APM では deny 違反が **二段で** 止まることを順番に体験していきます。
 
@@ -787,12 +778,9 @@ https://github.com/apm-handson-org/apm-handson/pull/2
 
 #### 手順
 
-1. main を最新化して、違反パッケージ用のブランチを切る
+1. 違反パッケージ用のブランチを切る
 
     ```bash
-    cd apm-handson
-    git switch main
-    git pull origin main
     git switch -c feat/demo-policy-violation
     ```
 
@@ -887,7 +875,6 @@ gh pr close 2 --delete-branch
 「PR まで立てずに、ローカルで CI と同じ違反検出だけ見たい」場合は、リファレンス実装の違反ブランチを直接 audit にかけるのが早いです。
 
 ```bash
-cd apm-handson
 git switch feat/demo-policy-violation
 
 GITHUB_TOKEN=$(gh auth token) apm audit --ci --policy org --no-cache
@@ -920,9 +907,9 @@ GITHUB_TOKEN=$(gh auth token) apm audit --ci --policy org --no-cache
 
 ## 運用 Tips
 
-### Required status check にする
+### CI が通らない PR をマージできなくする
 
-PR を通すルートで必ず `apm-audit` を通すには、**Repository settings → Rules → Rulesets** で `apm-audit` を Required status check にしておきます。これをやらないと、違反 PR でも人が気合で merge ボタンを押せてしまいます。
+PR を通すルートで必ず `apm-audit` を通すには、**Repository settings → Rules → Rulesets** で `apm-audit` を **Require status checks to pass** に追加しておきます。これをやらないと、違反 PR でも人が気合で merge ボタンを押せてしまいます。
 
 ### main 直 push 運用ならどうする？
 
@@ -945,21 +932,18 @@ policy:
 
 ## まとめ
 
-- **APM = AI エージェント設定の `package.json`**。`apm init` → 依存追加 → `apm install` の 3 ステップで全ハーネスに配布できる。
-- セキュリティは **defense in depth（ローカル + CI）**:
-    - ローカル `apm install` = 不可視 Unicode 自動ブロック **＋ org policy fetch で deny 違反を fast-fail**（`--no-policy` で一時バイパス可）
-    - CI `apm audit --ci --policy org` = `--no-policy` を許さない最終ゲート。SARIF を Code Scanning に流して PR でアラート可視化。
-- ルールは `apm-policy.yml` 1 か所、適用は 2 段。**ローカルで気づける + CI で必ず止まる** のが APM 流。
-- ポリシー取得失敗の挙動はデフォルト fail-open なので、本番では `policy.fetch_failure_default: block` で fail-closed に倒すかをまず決める。
-- **`apm-policy.yml` + GitHub Actions + Rulesets** の組み合わせを前提にして、PR をゲート化するのが運用の王道。
-- まだ _early days_ なプロジェクトなので、glob の挙動など細かいところで「あれ？」となる場面もあります。そういうときこそ [microsoft/apm](https://github.com/microsoft/apm) に Issue を立てる or PR を送るチャンスかもしれません。
+- **APM は「AI エージェント設定の `package.json`」**。Copilot / Claude / Cursor など複数ハーネスへの配布、バージョン固定、再現性のあるセットアップを 1 つの `apm.yml` に集約する。
+- **解決する課題**: ハーネスごとのコピペ運用、メンバー間の設定差、依存パッケージの素性不明 — それらすべてが Git の歴史に乗る。
+- **再現性**: lockfile に 40 桁のコミットハッシュが焼き付くので、誰がいつ install しても同じ状態。新メンバーは `git clone && apm install` だけで完成形の環境が手に入る。
+- **ガバナンスもできる**: `apm-policy.yml` で組織のルールを 1 か所に書けば、ローカルの install 時点と CI 上の監査の両方で違反を自動ブロックできる。PR レベルで違反を可視化できるので、組織として「何を取り込んでよいか」を統制できる。
+- まだ early days なプロジェクトなので、ハマりどころに当たったら [microsoft/apm](https://github.com/microsoft/apm) に Issue / PR を投げて育てていくフェーズ。
 
 ## ハンズオン資産
 
 この記事で使ったものは全部公開しています。Clone してそのままなぞれます。
 
-- ハンズオンリポ: https://github.com/apm-handson-org/apm-handson
-- org policy (dummy org): https://github.com/apm-handson-org/.github
+- ハンズオンリポ（完成形・コピペ参考用）: https://github.com/apm-handson-org/apm-handson
+- org policy リポ（完成形）: https://github.com/apm-handson-org/.github
 - デモ用違反パッケージ: https://github.com/ry0y4n/evil-sample-skill
 
 ## 参考リンク
