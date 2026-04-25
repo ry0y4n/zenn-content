@@ -1,9 +1,16 @@
 ---
-title: "Agent Package Manager (APM) をハンズオンで触ってみる"
+title: "ハーネスエンジニアリングを楽にする Microsoft 製の新ツール「APM」ハンズオン"
 emoji: "📦"
 type: "tech" # tech: 技術記事 / idea: アイデア
-topics: ["githubcopilot", "githubactions", "ai", "agent", "apm"]
-published: false
+topics:
+    [
+        "githubcopilot",
+        "githubactions",
+        "aiエージェント",
+        "コンテキストエンジニアリング",
+        "ハーネスエンジニアリング",
+    ]
+published: true
 publication_name: "microsoft"
 ---
 
